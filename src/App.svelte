@@ -17,12 +17,12 @@
 <Bar />
 
 <div class="main-layout">
+  <Drawer />
   <main>
     {#await import_component_file() then componentFile}
       <svelte:component this={componentFile.default} />
     {/await}
   </main>
-  <Drawer />
 </div>
 
 <style lang="scss" global>

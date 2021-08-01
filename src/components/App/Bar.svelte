@@ -14,24 +14,33 @@
 
 <div id="app-bar">
   <IconTray id="app-shortcuts">
+    <Toggle
+      id="menu-toggle"
+      src_off="menu"
+      src_on="close"
+      title="Menu"
+      on_change_handler={menu_toggled_callback}
+      class_list="center-align-flex pointer"
+    />
+
     <IconLink link_target="/" title="Go Home" open_in_new_page={false}>
       <span>home</span>
     </IconLink>
 
-    <IconLink
-      link_target="nathanblair.rocks/about"
-      title="About Me"
-      open_in_new_page={false}
-    >
+    <IconLink link_target="about" title="About Me" open_in_new_page={false}>
       <span>person</span>
     </IconLink>
 
     <IconLink
-      link_target="nathanblair.rocks/resume"
+      link_target="resume"
       title="My Qualifications"
       open_in_new_page={false}
     >
       <span>work</span>
+    </IconLink>
+
+    <IconLink link_target="blog" title="My Blog" open_in_new_page={false}>
+      <span>feed</span>
     </IconLink>
   </IconTray>
 
@@ -63,15 +72,6 @@
     <IconLink link_target="mailto:me@nathanblair.rocks" title="Email">
       <span>email</span>
     </IconLink>
-
-    <Toggle
-      id="menu-toggle"
-      src_off="menu"
-      src_on="close"
-      title="Menu"
-      on_change_handler={menu_toggled_callback}
-      class_list="center-align-flex pointer"
-    />
   </IconTray>
 </div>
 
