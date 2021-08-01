@@ -27,19 +27,19 @@
       <span>home</span>
     </IconLink>
 
-    <IconLink link_target="about" title="About Me" open_in_new_page={false}>
+    <IconLink link_target="/about" title="About Me" open_in_new_page={false}>
       <span>person</span>
     </IconLink>
 
     <IconLink
-      link_target="resume"
+      link_target="/resume"
       title="My Qualifications"
       open_in_new_page={false}
     >
       <span>work</span>
     </IconLink>
 
-    <IconLink link_target="blog" title="My Blog" open_in_new_page={false}>
+    <IconLink link_target="/blog" title="My Blog" open_in_new_page={false}>
       <span>feed</span>
     </IconLink>
   </IconTray>
