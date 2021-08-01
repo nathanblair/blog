@@ -6,7 +6,7 @@
     return import(
       `./pages/${
         window.location.pathname === "/"
-          ? "Main"
+          ? "Blog"
           : window.location.pathname
               .replaceAll(/\//g, "")
               .slice(0, 1)
