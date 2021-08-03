@@ -1,0 +1,66 @@
+<p>
+  I want to take a moment to detail my approach to automating my site
+  deployment. Because I think its pretty <em>spiffy</em>.
+</p>
+
+<p>
+  I suppose first and foremost, I'll give some background on the branches and
+  their strategy.
+</p>
+
+<h3>Branches</h3>
+
+<dl>
+  <dt class="code">public</dt>
+  <dd>
+    This is the branch that GitHub Pages actually serves. It is
+    singly-progressive branch as its contents come from code compiles
+  </dd>
+  <dt class="code">default</dt>
+  <dd>
+    This is the source code branch. Its contents are "compiled" (in the sense
+    that any JavaScript can be) and its output goes into a build output folder
+    in the <span class="code">public</span> folder
+  </dd>
+</dl>
+
+<h3>Strategy</h3>
+
+<p>
+  I like to keep my branching and merging strategies as simple as possible. This
+  is a great showcase of that in action.
+</p>
+
+<p>
+  Merges happen "upstream" to the <span class="code">public</span> branch from
+  the <span class="code">default</span> branch. So when a PR is closed that
+  merges the <span class="code">default</span> branch into the
+  <span class="code">public</span> branch, it signifies a release to the live
+  site is intended.
+</p>
+
+<h4>How do we accomplish that in GitHub Actions with GitHub Pages?</h4>
+
+<h5>Walkthrough</h5>
+
+<p>The GitHub Actions workflow I've created to deploy the site update:</p>
+
+<ol>
+  <li>Ensures the working directory is clean</li>
+  <li>
+    Clones in the <span class="code">public</span> branch from the repository
+    into a <span class="code">public</span> folder in the working directory
+  </li>
+  <li>
+    Clones in the <span class="code">default</span> branch from the repository
+    into <span class="code">site</span> folder in the working directory
+  </li>
+  <li>
+    Performs an <span class="code">npm ci</span> from the
+    <span class="code">site</span> working directory
+  </li>
+  <li>
+    "Builds" the source from the <span class="code">site</span> working
+    directory
+  </li>
+</ol>
