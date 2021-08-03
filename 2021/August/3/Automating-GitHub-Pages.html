@@ -4,23 +4,56 @@
 </p>
 
 <p>
-  I suppose first and foremost, I'll give some background on the branches and
-  their strategy.
+  I suppose first and foremost, I'll share why I think its important enough to
+  discuss, and then give some background on the branches and their strategy.
 </p>
+
+<h2>Why is this significant?</h2>
+
+<p>
+  It was my interpretation when I began working with GitHub pages that it should
+  serve static content, and that content would sit directly inside the root of
+  the directory.
+</p>
+
+<p>
+  But if you want to use a framework that requires "compilation" to generate
+  your front-end UI, you typically "compile" to a target folder. To get this
+  folder served by GitHub Pages, you then might instinctively set your GitHub
+  Pages to serve from some branch's (probably your repo's default)
+  <code>docs</code> directory.
+</p>
+
+<p>
+  This <code>docs</code> directory is hard-coded from GitHub, and may make
+  working with your built assets less intuitive.
+</p>
+
+<p>
+  Coupled with this awkward <code>docs</code> build target folder, now you're
+  looking at source controlling built artifacts in the same repo the source to
+  generate potentially different artifacts is found in.
+</p>
+
+<p><em>No bueno.</em></p>
+
+<p>This workflow skirts around both of these issues.</p>
+
+<h2>Workflow</h2>
 
 <h3>Branches</h3>
 
 <dl>
-  <dt class="code">public</dt>
+  <dt><code>public</code></dt>
   <dd>
     This is the branch that GitHub Pages actually serves. It is
     singly-progressive branch as its contents come from code compiles
   </dd>
-  <dt class="code">default</dt>
+  <dt><code>default</code></dt>
   <dd>
     This is the source code branch. Its contents are "compiled" (in the sense
     that any JavaScript can be) and its output goes into a build output folder
-    in the <span class="code">public</span> folder
+    in the <code>public</code> folder
   </dd>
 </dl>
 
@@ -32,11 +65,10 @@
 </p>
 
 <p>
-  Merges happen "upstream" to the <span class="code">public</span> branch from
-  the <span class="code">default</span> branch. So when a PR is closed that
-  merges the <span class="code">default</span> branch into the
-  <span class="code">public</span> branch, it signifies a release to the live
-  site is intended.
+  Merges happen "upstream" to the <code>public</code> branch from the
+  <code>default</code> branch. So when a PR is closed that merges the
+  <code>default</code> branch into the <code>public</code> branch, it signifies
+  a release to the live site is intended.
 </p>
 
 <h4>How do we accomplish that in GitHub Actions with GitHub Pages?</h4>
@@ -48,19 +80,39 @@
 <ol>
   <li>Ensures the working directory is clean</li>
   <li>
-    Clones in the <span class="code">public</span> branch from the repository
-    into a <span class="code">public</span> folder in the working directory
+    Clones in the <code>public</code> branch from the repository into a
+    <code>public</code> folder in the working directory
   </li>
   <li>
-    Clones in the <span class="code">default</span> branch from the repository
-    into <span class="code">site</span> folder in the working directory
+    Clones in the <code>default</code> branch from the repository into
+    <code>site</code> folder in the working directory
   </li>
   <li>
-    Performs an <span class="code">npm ci</span> from the
-    <span class="code">site</span> working directory
+    Performs an <code>npm ci</code> from the <code>site</code> working directory
   </li>
   <li>
-    "Builds" the source from the <span class="code">site</span> working
-    directory
+    <code>npm run build:prod</code> from the <code>site</code> working directory
+  </li>
+  <li>
+    Copy the
+    <code>site/public</code> directory to the target
+    <code>public</code> directory
+  </li>
+  <li>
+    Configure git so the changes in the <span class="code">public</span> working
+    directory can be committed
+  </li>
+  <li>
+    <code>git add --all</code> all of the changes (diff will be applied via
+    copied files from the <code>site/public</code> directory) and
+    <code>git commit</code> them
+  </li>
+  <li>
+    <code>git push</code> that new commit back to the <code>public</code> branch
   </li>
 </ol>
+
+<p>
+  Following that, GitHub Pages will now be serving the updating site
+  automatically!
+</p>
