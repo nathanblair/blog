@@ -472,9 +472,106 @@
   article set in the <code>window.location</code>.
 </p>
 
+<h5>What's in an <code>id</code>?</h5>
+
+<p>
+  Baked into the <code>id</code> are some crucial pieces of information. Namely,
+  the date and title of the blog post. These are encoded with a
+  <code>-</code> delineator and with the <code>html</code> file suffix stripped
+  off, which would otherwise have been included when the article file name was
+  returned during the original article listing query. This is done primarily to
+  allow a cleaner, more conventional looking <code>id</code> attribute.
+</p>
+
+<p>
+  The kind of information encoded into the <code>id</code> allows specific
+  retrieval of that article from the Cloud Storage if a user wants to navigate
+  to a page that directly presents that article. e.g.
+  <a href="https://nathanblair.rocks/blog#2021-August-4-The-Blog"></a> If you
+  recall the <code>extract_filter_from_fragment</code> function mentioned
+  earlier, there were some string operations done on the <code>id</code> in
+  order to generate a filter that could be sent when fetching the blog articles.
+  Indeed, it should be clear that the first 3 parameters of the
+  <code>id</code> are the <code>${DAY}</code>, <code>${MONTH}</code>, and
+  <code>${YEAR}</code> (not necessarily in that order), that could be used to
+  assmble a filter function for querying that specific article from Cloud
+  Storage.
+</p>
+
+<p>
+  In addition to being able to fetch the correct article itself, it also allows
+  a direct shareable link to a specific article, which would otherwise be
+  impossible when implementing a SPA-aproach. Is at as efficient with respect to
+  having a folder for each blog embedded into your website source? I would
+  actually argue its <em>more</em> efficient, especially when considering the
+  constraints of using only static page hosting services. If the static hosting
+  constraint was taken away, there's absolutely other ways to accomplish
+  separating blog source from website source, as that's effectively how
+  <a href="https://medium.com">medium</a> and other related sites work.
+</p>
+
+<p>
+  Are fragments as capable as <code>index.html</code>s when it comes to SEO?
+  This is a question I've yet to answer fully, but my suspicion is that they
+  should be just as effective. The question boils down more to "Is a search
+  engine crawler capable of indexing blog articles if they must be retrieved
+  from other domains?" I do not have a good answer for this yet.
+</p>
+
 <h4>Blog Article Behaviors</h4>
 
+<p>
+  Now that we know more about the consumption blog articles in a blog webpage,
+  we can discuss the nuances of how these articles behave.
+</p>
+
+<p>
+  In my eyes, I think it is most intuitive to get a list of blogs, with their
+  date, title, and a snippet of them visible as part of a list spanning some
+  section of time.
+</p>
+
+<p>
+  I can peruse the article list at my discretion and should I find something
+  that sounds intereseting to read, I would like to click on that snippet and
+  have the page show the full article contents.
+</p>
+
+<p>
+  When I am done reading the article, it is intuitive to me that I should click
+  the article to "collapse" it again and get back to being able to see the rest
+  of the list of articles, right where I left off.
+</p>
+
+<p>The key points here are:</p>
+
+<ul>
+  <li>
+    Individual articles don't take up too much screen real estate until desired.
+  </li>
+  <li>
+    I should not need to switch contexts or navigate to a new page to jump into
+    the article contents.
+  </li>
+</ul>
+
+<p>
+  The latter point is addressed by leaning on the <code>id</code> and URL
+  fragments as discussed earlier. The former point is the topic we'll be
+  discussing currently.
+</p>
+
+<h5>Toggling Article Content</h5>
+
+<p><em>TODO</em></p>
+
+<h4>The Blog Network Fetches and <code>src/blog.js</code></h4>
+
+<p><em>TODO</em></p>
+
 <h3>Writing and Committing</h3>
+
+<p><em>TODO</em></p>
 
 <h1>What's will all the name mangling?</h1>
 
@@ -494,13 +591,29 @@
 
 <p>
   And so we get some <em>sort of</em> ugly name mangling for the "Blog Article
-  Date" and "Blog Title", but I'd consider it a worthy trade of over having all
+  Date" and "Blog Title", but I'd consider it a worthy trade-off over having all
   the <code>header</code> boilerplate in every article.
 </p>
 
-<h1>Sharing Posts and Anchor Links</h1>
+<h1>Reader View Compatibility</h1>
+
+<p>
+  Individual article reading has been tested as being compatible with the
+  Firefox Browser.
+</p>
 
 <h1>SEO Concerns and Considerations</h1>
+
+<h2>What about <code>head</code> tags/keywords for SEO?</h2>
+
+<p>
+  I'm unsure about this yet, as there is currently no implementation for
+  including <code>tag</code> or <code>keyword</code> information to the document
+  <code>head</code>. The information would have to be extracted from the blog
+  source, and in an ideal sense, there would be a function to extract keywords
+  dynamically and insert them into the document <code>head</code> when an
+  individual article is clicked.
+</p>
 
 <h2>
   <em><b>FINISH ME</b></em>
