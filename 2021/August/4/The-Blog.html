@@ -64,7 +64,136 @@
   with the cloud.
 </p>
 
+<aside>
+  Discussing setting up for a cloud storage host other than GitHub is outside
+  the scope of this blog post. If people are interested in how Google Firestore
+  or AWS S3 might work, send me a mention
+  <a href="https://twitter.com/NateTBlair">@NateTBlair</a>
+</aside>
+
+<h4>GitHub</h4>
+
+<p>
+  For GitHub, its a simple matter of creating a repository that's solely meant
+  for source-controlling your blog post source files (the
+  <code>html</code> files).
+</p>
+
+<p>
+  This method is most effective (and the assumption throughout the rest of the
+  guide) when there is also a directory structure expected. Its very simple:
+</p>
+
+<ul>
+  <li>
+    <code>Year</code>
+    <ul>
+      <li>
+        <code>Month</code>
+        <ul>
+          <li>
+            <code>Day</code>
+            <ul>
+              <li>
+                <code>Blog-Post.html</code>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>
+  This will end up with a blog post shown on the website for the date
+  <code>${Day} ${Month} ${Year}</code> and the title <b>Blog Post</b>.
+</p>
+
+<p>
+  Feel free to either create the repository in GitHub first and clone it down or
+  initialize the local <code>git</code> repo and add the created GitHub remote
+  repository to the existing local one.
+</p>
+
+<p>
+  Make sure you are set to commit and sync to your remote's default branch (I
+  simply <code>git config --global init.defaultBranch "default"</code>).
+</p>
+
+<p>
+  Simply write the <code>Blog-Post.html</code> file at the desired date folder
+  structure location,
+  <code>git add ${Year}/${Month}/${Day}/Blog-Post.html</code>,
+  <code>git commit -m "${YOUR_COMMIT_MESSAGE}"</code>, and then
+  <code>git push</code> (<code>-u ${REMOTE_NAME} ${DEFAULT_BRANCH}</code> if
+  you're not already set up to sync to that branch by default).
+</p>
+
+<p>
+  This takes care of everything that needs to be done to the blog article
+  <code>html</code> file itself. With the source now available from a Cloud
+  Storage host, we just need to fetch it and insert it into our Blog page.
+</p>
+
 <h3>Website Blog Page Logic</h3>
+
+<p>
+  The details of this will be very dependent upon how your site is designed and
+  what kind of frameworks you use. I can't account for everything in a single
+  article so I'll divulge my process while using
+  <code><a href="https://svelte.dev/">svelte</a></code> and you can feel free to
+  modify the process to fit your needs accordingly.
+</p>
+
+<h4>Svelte Pages and Routing</h4>
+
+<p>
+  I don't use any extra special <code>svelte</code> frameworks to manage
+  single-page routing. I have a <code>blog/index.html</code> path inside my
+  hosted root folder, and that <code>index.html</code> file points to the same
+  <code>main.js</code> and other assets that my <code>/index.html</code> file
+  do. In the end, it ends up just serving my <code>Blog.svelte</code> component.
+  To see it in action, check out my
+  <code
+    ><a
+      href="https://github.com/nathanblair/nathanblair.github.io/blob/default/src/App.svelte"
+      >App.svelte</a
+    ></code
+  >
+  file and my
+  <code
+    ><a
+      href="https://github.com/nathanblair/nathanblair.github.io/blob/default/src/pages/Blog.svelte"
+      >pages/Blog.svelte</a
+    ></code
+  >
+  file.
+</p>
+
+<p>
+  Speaking of that <code>pages/Blog.svelte</code> file, let's dive into what its
+  doing to load our Blog articles from the Cloud Storage host.
+</p>
+
+<h4><code>pages/Blog.svelte</code></h4>
+
+<p>
+  Most of the functionality for network requests is actually handled in a
+  <code>Javascript</code> module located in <code>src/blog.js</code>, but let's
+  first dive into what must be done from a high-level before digging into the
+  implementation details.
+</p>
+
+<p>
+  One of the first things we need is a DOM element for targeting where to insert
+  each Blog Article. For the time being (until I get reverse-chronological
+  sorting implemented) I simply target the
+  <code>document.getElementById(main_id)</code>. This just appends each Blog
+  Article that is fetched as siblings to one another in my DOM's
+  <code>main</code> element. It may be appropriate to target your blog articles
+  to your <code>document.body</code>.
+</p>
 
 <h3>Writing and Committing</h3>
 
