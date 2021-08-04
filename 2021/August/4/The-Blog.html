@@ -1,0 +1,75 @@
+<p>
+  Hosting your blog source files separately from your website source files using
+  only <code>git</code> and GitHub Pages - it can't be done!
+</p>
+
+<p>
+  That's what I was becoming convinced of. I've done some hacking and it turns
+  out, with even just a pretty simple logic flow, it <em>can</em> in fact be
+  done.
+</p>
+
+<h1>The Why</h1>
+
+<p>
+  I think we can all agree separation of concern is a good thing; and that its
+  much easier to only need to concern yourself with publishing an
+  <code>html</code> file rather than an entire website. In addition, blog
+  content should be both source-controlled and source-controlled separately from
+  the actual website that hosts it.
+</p>
+
+<h1>The Flow</h1>
+
+<h2>Overview</h2>
+
+<ul>
+  <li>
+    Write blog source files and organize them in a directory structure
+    representing their date of publish and with a filename that represents their
+    title.
+  </li>
+
+  <li>
+    Source control blog repository in a cloud repository. GitHub works very well
+    for this as their API to list directories and grab files from repositories
+    is very simple to consume. But I've hacked around to make it work using
+    something like Google Firestore as well, and I'm sure S3 buckets could
+    potentially work too.
+  </li>
+
+  <li>
+    Add blog diff, commit, and push your local to your Cloud Host (easier if the
+    repository cloud host is also the one serving the files, otherwise you'll
+    have to do some more steps to copy the blog articles to your Cloud Storage
+    buckets).
+  </li>
+
+  <li>
+    Publish website that can make API calls to download blog source
+    (<code>html</code>) files
+  </li>
+</ul>
+
+<h2>The Details</h2>
+
+<h3>Cloud Storage</h3>
+
+<p>
+  The first order of business is to create the hosting environment for where the
+  blog source (i.e. the <code>html</code>) files will actually reside. This can
+  work using Cloud Storage solutions like S3 or Google Firestore but I find its
+  most efficient to use a GitHub repository, as their API is very easy to
+  consume and no extra steps are needed once the local source control is synced
+  with the cloud.
+</p>
+
+<h3>Website Blog Page Logic</h3>
+
+<h3>Writing and Committing</h3>
+
+<h1>Sharing Posts and Anchor Links</h1>
+
+<h1>SEO Concerns</h1>
+
+<p>I need to put in some work to verify, but I believe</p>
