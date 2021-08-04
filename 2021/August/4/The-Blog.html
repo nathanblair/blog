@@ -176,7 +176,10 @@
   doing to load our Blog articles from the Cloud Storage host.
 </p>
 
-<h4><code>pages/Blog.svelte</code></h4>
+<h4>
+  <a name="BlogPage"></a>
+  <code>pages/Blog.svelte</code>
+</h4>
 
 <p>
   Most of the functionality for network requests is actually handled in a
@@ -195,10 +198,312 @@
   to your <code>document.body</code>.
 </p>
 
+<p>
+  The next piece of information we'll need is to evaluate the current context to
+  determine what kind of filter to use to fetch blog articles.
+</p>
+
+<p>
+  For example, since we're not navigating to the blog
+  <code>index.html</code> pages directly, we need to know if our current
+  <code>window.location</code> indicates the user is attempting to view an
+  article directly. Otherwise, we'll want to fetch a mixture of blog articles
+  from the current time to say, 30 days previous?
+</p>
+
+<p>
+  That filter, in turn, is what we'll be using in our API calls. Note that we've
+  set up the blog directory structure for pretty easy querying. If you're using
+  something like Firestore or another Cloud Storage you could take advantage of
+  different query indices to optimize the API calls you're making and better
+  tailor your filtering function.
+</p>
+
+<p>
+  The first logic check is then to have a look at the
+  <code>window.location.hash</code>.
+</p>
+
+<pre><code>
+  function extract_filter_from_fragment() {
+    return window.location.hash
+      .replace(/^#/, "")
+      .split("-")
+      .slice(0, 3)
+      .join("/")
+  }
+</code></pre>
+
+<p>
+  The string operations going on here will make more sense later once we discuss
+  how we set the <code>id</code> of each blog article. Essentially, we're
+  stripping out the first 3 sections out of the url fragment (delineated by
+  <code>-</code>'s), which encode the <code>${DAY}</code>,
+  <code>${MONTH}</code>, and <code>${YEAR}</code> and reformatting them into a
+  string of the format <code>"${YEAR}/${MONTH}/${DAY}"</code>. This is
+  compatible with the way we're able to "query" data using the GitHub API and it
+  fits our directory model.
+</p>
+
+<p>&#128077;</p>
+
+<p>
+  We'll cache this result in
+  <code>const fragment = extract_filter_from_fragment()</code> and then check if
+  that returns empty. If it does not, we know that's what we should set the
+  filter to, otherwise, we'll use a default filter to fetch some timeline of
+  blog articles at our discretion (or present the user with some control that
+  allows narrowing down the time for the filter). It looks like:
+</p>
+
+<pre><code>
+    let filter = fragment === "" ? default_filter : () => fragment
+</code></pre>
+
+<p>
+  Note that the <code>filter</code> is cached to a callback.
+  <code>default_filter</code> is some function at our discretion that will pull
+  in some desired amount/timeline of blog articles.
+</p>
+
+<p>
+  We can now concern ourselves with passing in our <code>filter</code> callback
+  function to the call that will return an iterable of blog articles.
+  Specifically, I like the idea of using <code>Generators</code> to
+  <code>yield</code> each Article as it is processed from the Cloud Storage, and
+  so under the hood, our <code>for</code> loop that iterates on each retrieved
+  article will be iterating over a <code>Generator</code>. Again, we'll take a
+  look at this function a bit later.
+</p>
+
+<p>
+  For now, here's what our full function will look like to grab and populate
+  articles on our Blog page. Note the <code>BlogArticle</code> component, we'll
+  dive into that shortly as well.
+</p>
+
+<pre><code>
+  async function populate_blogs() {
+    const fragment = extract_filter_from_fragment()
+    let filter = fragment === "" ? default_filter : () => fragment
+    for await (const each_article of fetch_blog_articles(filter)) {
+      new BlogArticle({
+        target: root_element,
+        props: {
+          blog_file_name: each_article.file_name,
+          date: each_article.date,
+          content: each_article.content,
+        },
+      })
+    }
+  }
+</code></pre>
+
+<p>
+  As of now there is no way to initialize a slot when creating a
+  <code>Svelte</code> Component via Javascript. And we must create the Component
+  instance using Javascript because <code>Svelte</code> hasn't yet implemented
+  the <code>{#await :then}</code> and <code>{#each}</code> pattern for
+  <code>AsyncGenerator</code>s yet. Our
+  <code>fetch_blog_articles</code> function is <code>async</code> because it
+  will be awaiting network <code>fetch</code>es.
+</p>
+
+<p>
+  At the end of our <code>pages/Blog.svelte</code> Component script, we can make
+  a call to this function without needing to <code>await</code> its return:
+</p>
+
+<pre><code>
+&lt;script&gt;
+  ...
+  populate_blogs()
+  ...
+&lt;/script&gt;
+</code></pre>
+
+<h4><code>components/BlogArticle.svelte</code></h4>
+
+<p>
+  With the main Blog page set up to fetch blog articles, its now appropriate to
+  lay out what each article will look like. <code>Svelte</code> makes templating
+  up each article into a similar layout and design a very trivial task.
+</p>
+
+<p>
+  Taking a look at the most basic properties of a <code>BlogArticle</code>, we
+  obviously have a "Blog Article Title" as well as a "Blog Article Date".
+</p>
+
+<p>
+  The title of the blog is a parsed value that comes from the article file name
+  as it is in the Cloud Storage provider. We'll handle parsing the file name
+  into the title itself a little later, but for now we know we need to expose a
+  property for the file name to be set when instantiating the Component.
+</p>
+
+<p>
+  You're free to represent your dates the way you want to; its easiest to keep
+  the date format consistent between how its displayed in the blog page and how
+  you store it in the original blog repository. e.g. I display my blogs in the
+  format
+  <code>"$DD $FULL_MONTH $YEAR</code>. But you could display them as
+  <code>$DD $MM $YY</code> if that suited your intuition better. Either way,
+  we'll expose a <code>date</code> property for passing in the date of the blog
+  article, known at the time of fetching it from the Cloud Storage provider as
+  it will be the path to the actual file.
+</p>
+
+<p>
+  Since we're not allowed to pass in slots directly when we instantiate Svelte
+  Components from Javascript, we'll also have to pass in the
+  <code>html</code> content of the blog as a Component property. We'll then need
+  to expose a <code>content</code> property for passing in the raw
+  <code>html</code> content of the retrieved file.
+</p>
+
+<p>
+  That covers the input properties of the <code>BlogArticle</code> Component
+  that it needs to create itself. Note that these are consistent with the
+  properties set when we instantiate the <code>BlogArticle</code> from the
+  <a href="#BlogPage"><code>pages/Blog.svelte</code> Component</a>.
+</p>
+
+<pre><code>
+  // components/BlogArticle.svelte
+
+  &lt;script&gt;
+    ...
+
+    /** @type {string} */
+    export let blog_file_name
+
+    /** @type {import("../blog.js").ArticleDateArray} */
+    export let date
+
+    /** @type {string} */
+    export let content
+
+    ...
+  &lt;script&gt;
+
+  ...
+</code></pre>
+
+<p>
+  We know the properties the BlogArticle will need to display, so let's wire up
+  the layout for it.
+</p>
+
+<pre><code>
+  &lt;a href={"#" + id} on:click={toggle_article_expansion} bind:this={article_link}&gt;
+    &lt;article {id}&gt;
+      &lt;header&gt;
+        &lt;h1 class="article-date">{day} {month} {year}&lt;/h1&gt;
+        &lt;h2 class="article-title">{parse_blog_file_name()}&lt;/h2&gt;
+      &lt;/header&gt;
+      &lt;div class="article-content hidden" bind:this={content_accessor}&gt;
+        {@html content}
+      &lt;/div&gt;
+      &lt;p class="snippet" bind:this={snippet_accessor}&gt;{@html snippet}&lt;/p&gt;
+    &lt;/article&gt;
+  &lt;/a&gt;
+</code></pre>
+
+<p>
+  There's quite a bit buried in there that hasn't been addressed yet, so let's
+  pick it apart. Starting with the <code>header</code> as that is the
+  information we just finished setting up to be collected.
+</p>
+
+<p>
+  The <code>header</code> has to values it displays: the "Blog Article Title"
+  and the "Blog Date".
+</p>
+
+<h4>Blog Date</h4>
+
+<p>
+  The Blog Date is a trivial substituion whose components are
+  <code>const</code>ants set from parsing our input property <code>date</code>.
+  Its very simply:
+</p>
+
+<pre><code>
+  const year = date[0]
+  const month = date[1]
+  const day = date[2]
+</code></pre>
+
+<h4>Blog Title</h4>
+
+<p>
+  As mentioned previously, there's a little more parsing going on here to
+  generate the Blog Title, but we have all the information we need to parse it.
+  We're simply looking at the <code>blog_file_name</code> input parameter and
+  doing some very trivial string operations on it:
+</p>
+
+<pre><code>
+  function parse_blog_file_name() {
+    return id.split("-").slice(3).join(" ")
+  }
+</code></pre>
+
+<p>
+  You should notice the <code>blog_file_name</code> isn't used directly, but
+  instead the <code>id</code>. This <code>id</code> will be the
+  <code>id</code> attribute of the article and it is calculated from another
+  couple simple string operations:
+</p>
+
+<pre><code>
+  const id = year + "-" + month + "-" + day + "-" + blog_file_name.replace(".html", "")
+</code></pre>
+
+<h4><code>id</code></h4>
+
+<p>
+  Let's dive first into how the <code>id</code> is generated so you can get a
+  better understanding of how it fits into the "Blog Title" as well as how we
+  use it to create anchor links for the article and in turn, allow using the
+  <code>id</code> to help filter out only the current blog article when either
+  given a direct link to the article or when reloading the page with that
+  article set in the <code>window.location</code>.
+</p>
+
+<h4>Blog Article Behaviors</h4>
+
 <h3>Writing and Committing</h3>
+
+<h1>What's will all the name mangling?</h1>
+
+<p>
+  For the blog article dates and titles, it is certainly the case that you could
+  just include that <code>header</code> information in your Blog source
+  <code>html</code> files.
+</p>
+
+<p>
+  My interest is always in removing as much boilerplate as possible. And the
+  information you need to query can be baked into the Blog Article Date. Rather
+  than needing to write that <code>header</code> field for every single article
+  you write, why not make your initial organization better and remove that
+  boilerplate completely?
+</p>
+
+<p>
+  And so we get some <em>sort of</em> ugly name mangling for the "Blog Article
+  Date" and "Blog Title", but I'd consider it a worthy trade of over having all
+  the <code>header</code> boilerplate in every article.
+</p>
 
 <h1>Sharing Posts and Anchor Links</h1>
 
-<h1>SEO Concerns</h1>
+<h1>SEO Concerns and Considerations</h1>
+
+<h2>
+  <em><b>FINISH ME</b></em>
+</h2>
 
 <p>I need to put in some work to verify, but I believe</p>
