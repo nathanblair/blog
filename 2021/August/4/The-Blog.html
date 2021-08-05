@@ -266,8 +266,7 @@
   <code class="lang-js">window.location.hash</code>.
 </p>
 
-<pre><code class="lang-js">
-  function extract_filter_from_fragment() {
+<pre><code class="lang-js">  function extract_filter_from_fragment() {
     return window.location.hash
       .replace(/^#/, "")
       .split("-")
@@ -299,9 +298,7 @@
   control that allows narrowing down the time for the filter). It looks like:
 </p>
 
-<pre><code class="lang-js">
-    let filter = fragment === "" ? default_filter : () => fragment
-</code></pre>
+<pre><code class="lang-js">  let filter = fragment === "" ? default_filter : () => fragment</code></pre>
 
 <p>
   Note that the <code class="lang-js">filter</code> is cached to a callback.
@@ -327,8 +324,7 @@
   dive into that shortly as well.
 </p>
 
-<pre><code class="lang-js">
-  async function populate_blogs() {
+<pre><code class="lang-js">  async function populate_blogs() {
     const fragment = extract_filter_from_fragment()
     let filter = fragment === "" ? default_filter : () => fragment
     for await (const each_article of fetch_blog_articles(filter)) {
@@ -361,12 +357,11 @@
   <code class="lang-js">await</code> its return:
 </p>
 
-<pre><code class="lang-html">
-&lt;script&gt;
-  ...
-  populate_blogs()
-  ...
-&lt;/script&gt;
+<pre><code class="lang-html">  &lt;script&gt;
+    ...
+    populate_blogs()
+    ...
+  &lt;/script&gt;
 </code></pre>
 
 <h4><code>components/BlogArticle.svelte</code></h4>
@@ -418,9 +413,7 @@
   <a href="#BlogPage"><code>pages/Blog.svelte</code> Component</a>.
 </p>
 
-<pre><code class="lang-html">
-  // components/BlogArticle.svelte
-
+<pre><code class="lang-html">  // components/BlogArticle.svelte
   &lt;script&gt;
     ...
 
@@ -444,8 +437,7 @@
   the layout for it.
 </p>
 
-<pre><code class="lang-html">
-  &lt;article {id} class={card_class_name} bind:this={article_accessor}&gt;
+<pre><code class="lang-html">  &lt;article {id} class={card_class_name} bind:this={article_accessor}&gt;
     &lt;header&gt;
       &lt;h1 class="article-date">{day} {month} {year}&lt;/h1&gt;
       &lt;h2 class="article-title">{parse_blog_file_name()}&lt;/h2&gt;
@@ -484,8 +476,7 @@
   <code>date</code>. Its very simply:
 </p>
 
-<pre><code class="lang-js">
-  const year = date[0]
+<pre><code class="lang-js">  const year = date[0]
   const month = date[1]
   const day = date[2]
 </code></pre>
@@ -499,8 +490,7 @@
   parameter and doing some very trivial string operations on it:
 </p>
 
-<pre><code class="lang-js">
-  function parse_blog_file_name() {
+<pre><code class="lang-js">  function parse_blog_file_name() {
     return id.split("-").slice(3).join(" ")
   }
 </code></pre>
@@ -513,9 +503,7 @@
   calculated from another couple simple string operations:
 </p>
 
-<pre><code class="lang-js">
-  const id = year + "-" + month + "-" + day + "-" + blog_file_name.replace(".html", "")
-</code></pre>
+<pre><code class="lang-js">  const id = year + "-" + month + "-" + day + "-" + blog_file_name.replace(".html", "")</code></pre>
 
 <p>
   We'll get more into the <code class="lang-html">id</code> in just a moment,
@@ -538,9 +526,7 @@
   <code class="lang-html">id</code> of the article.
 </p>
 
-<pre><code class="lang-js">
-  const full_article_shown = window.location.hash.replace("#", "") === id
-</code></pre>
+<pre><code class="lang-js">  const full_article_shown = window.location.hash.replace("#", "") === id</code></pre>
 
 <p>
   We can then use <code class="lang-js">full_article_shown</code> to set up a
@@ -576,15 +562,13 @@
   more intuitive.
 </p>
 
-<pre><code class="lang-js">
-  // Inside script tag of Component
+<pre><code class="lang-js">  // Inside script tag of Component
   ...
   const card_class_name = full_article_shown ? "" : "card"
   ...
 </code></pre>
 
-<pre><code class="lang-css">
-  /* Inside style tag of Component */
+<pre><code class="lang-css">  /* Inside style tag of Component */
   ...
   .card {
     border: solid 1px;
@@ -601,8 +585,7 @@
   "snippet"-style look of the article in the list of articles.
 </p>
 
-<pre><code class="lang-css">
-  /* Component style tag */
+<pre><code class="lang-css">  /* Component style tag */
   .overlay {
     position: relative;
   }
@@ -634,8 +617,7 @@
   displayed in the snippet, I style it like this:
 </p>
 
-<pre><code class="lang-css">
-  a {
+<pre><code class="lang-css">  a {
     text-decoration: none;
     color: unset;
     display: block;
@@ -766,4 +748,7 @@
   <em><b>FINISH ME</b></em>
 </h2>
 
-<p>I need to put in some work to verify, but I believe</p>
+<p>
+  I need to put in some work to verify, but I don't see any reason why fragments
+  and anchors should be less efficient for SEO.
+</p>
