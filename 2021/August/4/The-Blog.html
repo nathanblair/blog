@@ -19,7 +19,37 @@
   the actual website that hosts it.
 </p>
 
-<h1>The Flow</h1>
+<p>
+  And the way this source-control directory structure is set up, we can
+  certainly have multiple branches open while working on multiple blog posts.
+  And merging them will hardly ever create a merge conflict!
+</p>
+
+<h2>Blog Article Behaviors</h2>
+
+<p>
+  In my eyes, I think it is most intuitive when visiting a Blog page to view a
+  list of blogs, with their date, title, and a snippet of them visible as part
+  of a list spanning some section of time.
+</p>
+
+<p>
+  I can peruse the article list at my discretion and should I find something
+  that sounds intereseting to read, I would like to click on that snippet and
+  view the full article contents without losing my context of where I am in
+  browsing the blog list.
+</p>
+
+<p>
+  This point is addressed by leaning on an article <code>id</code> and URL
+  fragments that will be discussed more later. We will set a link in the article
+  snippet that is show that opens the full article in a new tab when clicked.
+  This new tab allows reloading the page to view the same article, sharing the
+  direct article link using the same URL, or we can close the article page
+  without having to worry about losing our position in the blog list.
+</p>
+
+<h1>The Workflow</h1>
 
 <h2>Overview</h2>
 
@@ -396,18 +426,24 @@
 </p>
 
 <pre><code>
-  &lt;a href={"#" + id} on:click={toggle_article_expansion} bind:this={article_link}&gt;
-    &lt;article {id}&gt;
-      &lt;header&gt;
-        &lt;h1 class="article-date">{day} {month} {year}&lt;/h1&gt;
-        &lt;h2 class="article-title">{parse_blog_file_name()}&lt;/h2&gt;
-      &lt;/header&gt;
-      &lt;div class="article-content hidden" bind:this={content_accessor}&gt;
+  &lt;article {id} class={card_class_name} bind:this={article_accessor}&gt;
+    &lt;header&gt;
+      &lt;h1 class="article-date">{day} {month} {year}&lt;/h1&gt;
+      &lt;h2 class="article-title">{parse_blog_file_name()}&lt;/h2&gt;
+    &lt;/header&gt;
+    {#if full_article_shown}
+      {@html content}
+    {:else}
+      &lt;a
+        href={"#" + id}
+        target="_blank"
+        class="overlay snippet"
+        bind:this={article_anchor_accessor}
+      &gt;
         {@html content}
-      &lt;/div&gt;
-      &lt;p class="snippet" bind:this={snippet_accessor}&gt;{@html snippet}&lt;/p&gt;
-    &lt;/article&gt;
-  &lt;/a&gt;
+      &lt;/a&gt;
+    {/if}
+  &lt;/article&gt;
 </code></pre>
 
 <p>
@@ -417,7 +453,7 @@
 </p>
 
 <p>
-  The <code>header</code> has to values it displays: the "Blog Article Title"
+  The <code>header</code> has two values it displays: the "Blog Article Title"
   and the "Blog Date".
 </p>
 
@@ -460,6 +496,125 @@
 <pre><code>
   const id = year + "-" + month + "-" + day + "-" + blog_file_name.replace(".html", "")
 </code></pre>
+
+<p>
+  We'll get more into the <code>id</code> in just a moment, but let's return to
+  look at the rest of the Component to understand how it works with our desired
+  behavior.
+</p>
+
+<h4>Tracking Desire to View Full Blog</h4>
+
+<p>
+  Since the <code>BlogArticle</code> Component can be instantiated from either a
+  page listing numerous articles or from a desire to view only that single
+  article, we have to differentiate those cases. We can do this with the help of
+  the <code>id</code>/fragment of the URL.
+</p>
+
+<p>
+  If there's a desire to view only a single blog article, the
+  <code>window.location.hash</code> will be set to the <code>id</code> of the
+  article.
+</p>
+
+<pre><code>
+  const full_article_shown = window.location.hash.replace("#", "") === id
+</code></pre>
+
+<p>
+  We can then use <code>full_article_shown</code> to set up a couple different
+  scenarios.
+</p>
+
+<p>
+  Recall that the Component <code>html</code> used an <code>{#if}</code> check
+  for the value of <code>full_article_shown</code>. If the full article is
+  desired to be shown, the only portion that is rendered for the content portion
+  of the Component is the <code>content</code> passed in from the instantiation
+  of the <code>BlogArticle</code>, evaluated as <code>html</code>.
+</p>
+
+<p>
+  Sure, there are security considerations here regarding injecting the
+  <code>content</code> and evaluating its <code>html</code>, but I wager if your
+  blog content has its <code>content</code> compromised, you've got bigger
+  worries on your hands than <code>html</code>-injection. Namely, that your
+  entire GitHub account is compromised, or your Cloud Storage credentials are
+  compromised. Yuck. &#129326;
+</p>
+
+<p>
+  One of the other parameters that depends upon the
+  <code>full_article_shown</code> state is whether to show the
+  <code>article</code> element as a "card". This is simply a styling choice to
+  give each <code>article</code> a look of being raised from the page slightly,
+  which makes the link-clicking behavior more intuitive.
+</p>
+
+<pre><code>
+  // Inside script tag of Component
+  const card_class_name = full_article_shown ? "" : "card"
+
+  ...
+
+  // Inside style tag of Component
+  .card {
+    border: solid 1px;
+    box-shadow: 0 0 4px;
+    padding: 2vh;
+    margin: 2vh 2vw;
+  }
+</code></pre>
+
+<p>
+  Other styling applied like the <code>overlay</code> and
+  <code>snippet</code> classes are used for helping to create a "snippet"-style
+  look of the article in the list of articles.
+</p>
+
+<pre><code>
+  // Component style tag
+  .overlay {
+    position: relative;
+  }
+
+  .overlay::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 1) 90%
+    );
+    width: 100%;
+    height: 100%;
+  }
+
+  .snippet {
+    max-height: 20vh;
+    overflow: hidden;
+  }
+</code></pre>
+
+<p>
+  To ensure consistency in how the <code>a</code> link gets displayed in the
+  snippet, I style it like this:
+</p>
+
+<pre><code>
+  a {
+    text-decoration: none;
+    color: unset;
+    display: block;
+  }
+</code></pre>
+
+<p>What you get from all this is what you see currently!</p>
 
 <h4><code>id</code></h4>
 
@@ -518,62 +673,21 @@
   from other domains?" I do not have a good answer for this yet.
 </p>
 
-<h4>Blog Article Behaviors</h4>
-
-<p>
-  Now that we know more about the consumption blog articles in a blog webpage,
-  we can discuss the nuances of how these articles behave.
-</p>
-
-<p>
-  In my eyes, I think it is most intuitive to get a list of blogs, with their
-  date, title, and a snippet of them visible as part of a list spanning some
-  section of time.
-</p>
-
-<p>
-  I can peruse the article list at my discretion and should I find something
-  that sounds intereseting to read, I would like to click on that snippet and
-  have the page show the full article contents.
-</p>
-
-<p>
-  When I am done reading the article, it is intuitive to me that I should click
-  the article to "collapse" it again and get back to being able to see the rest
-  of the list of articles, right where I left off.
-</p>
-
-<p>The key points here are:</p>
-
-<ul>
-  <li>
-    Individual articles don't take up too much screen real estate until desired.
-  </li>
-  <li>
-    I should not need to switch contexts or navigate to a new page to jump into
-    the article contents.
-  </li>
-</ul>
-
-<p>
-  The latter point is addressed by leaning on the <code>id</code> and URL
-  fragments as discussed earlier. The former point is the topic we'll be
-  discussing currently.
-</p>
-
-<h5>Toggling Article Content</h5>
-
-<p><em>TODO</em></p>
-
 <h4>The Blog Network Fetches and <code>src/blog.js</code></h4>
 
 <p><em>TODO</em></p>
 
 <h3>Writing and Committing</h3>
 
-<p><em>TODO</em></p>
+<p>
+  To make sure the Blog page is able to fetch your blog, you'll have to make
+  sure you commit your article to the Blog source repository and sync those
+  changes to the remote repository on the default branch. If you're using
+  another Cloud Stroage provider you'll also want to be sure to upload the blog
+  source file there as well.
+</p>
 
-<h1>What's will all the name mangling?</h1>
+<h1>What's with all the name mangling?</h1>
 
 <p>
   For the blog article dates and titles, it is certainly the case that you could
