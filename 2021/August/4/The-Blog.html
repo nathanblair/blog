@@ -21,9 +21,9 @@
 <p>
   I think we can all agree separation of concern is a good thing; and that its
   much easier to only need to concern yourself with publishing an
-  <code>html</code> file rather than an entire website. In addition, blog
-  content should be both source-controlled and source-controlled separately from
-  the actual website that hosts it.
+  <code class="lang-html">html</code> file rather than an entire website. In
+  addition, blog content should be both source-controlled and source-controlled
+  separately from the actual website that hosts it.
 </p>
 
 <p>
@@ -48,12 +48,13 @@
 </p>
 
 <p>
-  This point is addressed by leaning on an article <code>id</code> and URL
-  fragments that will be discussed more later. We will set a link in the article
-  snippet that is show that opens the full article in a new tab when clicked.
-  This new tab allows reloading the page to view the same article, sharing the
-  direct article link using the same URL, or we can close the article page
-  without having to worry about losing our position in the blog list.
+  This point is addressed by leaning on an article
+  <code class="lang-html">id</code> and URL fragments that will be discussed
+  more later. We will set a link in the article snippet that is show that opens
+  the full article in a new tab when clicked. This new tab allows reloading the
+  page to view the same article, sharing the direct article link using the same
+  URL, or we can close the article page without having to worry about losing our
+  position in the blog list.
 </p>
 
 <h1>The Workflow</h1>
@@ -83,8 +84,10 @@
   </li>
 
   <li>
-    Publish website that can make API calls to download blog source
-    (<code>html</code>) files
+    Publish website that can make API calls to download blog source (<code
+      class="lang-html"
+      >html</code
+    >) files
   </li>
 </ul>
 
@@ -94,11 +97,11 @@
 
 <p>
   The first order of business is to create the hosting environment for where the
-  blog source (i.e. the <code>html</code>) files will actually reside. This can
-  work using Cloud Storage solutions like S3 or Google Firestore but I find its
-  most efficient to use a GitHub repository, as their API is very easy to
-  consume and no extra steps are needed once the local source control is synced
-  with the cloud.
+  blog source (i.e. the <code class="lang-html">html</code>) files will actually
+  reside. This can work using Cloud Storage solutions like S3 or Google
+  Firestore but I find its most efficient to use a GitHub repository, as their
+  API is very easy to consume and no extra steps are needed once the local
+  source control is synced with the cloud.
 </p>
 
 <aside>
@@ -113,7 +116,7 @@
 <p>
   For GitHub, its a simple matter of creating a repository that's solely meant
   for source-controlling your blog post source files (the
-  <code>html</code> files).
+  <code class="lang-html">html</code> files).
 </p>
 
 <p>
@@ -144,7 +147,8 @@
 
 <p>
   This will end up with a blog post shown on the website for the date
-  <code>${Day} ${Month} ${Year}</code> and the title <b>Blog Post</b>.
+  <code class="lang-js">${Day} ${Month} ${Year}</code> and the title
+  <b>Blog Post</b>.
 </p>
 
 <p>
@@ -169,8 +173,9 @@
 
 <p>
   This takes care of everything that needs to be done to the blog article
-  <code>html</code> file itself. With the source now available from a Cloud
-  Storage host, we just need to fetch it and insert it into our Blog page.
+  <code class="lang-html">html</code> file itself. With the source now available
+  from a Cloud Storage host, we just need to fetch it and insert it into our
+  Blog page.
 </p>
 
 <h3>Website Blog Page Logic</h3>
@@ -229,10 +234,10 @@
   One of the first things we need is a DOM element for targeting where to insert
   each Blog Article. For the time being (until I get reverse-chronological
   sorting implemented) I simply target the
-  <code>document.getElementById(main_id)</code>. This just appends each Blog
-  Article that is fetched as siblings to one another in my DOM's
-  <code>main</code> element. It may be appropriate to target your blog articles
-  to your <code>document.body</code>.
+  <code class="lang-js">document.getElementById(main_id)</code>. This just
+  appends each Blog Article that is fetched as siblings to one another in my
+  DOM's <code class="lang-html">main</code> element. It may be appropriate to
+  target your blog articles to your <code class="lang-js">document.body</code>.
 </p>
 
 <p>
@@ -243,9 +248,9 @@
 <p>
   For example, since we're not navigating to the blog
   <code>index.html</code> pages directly, we need to know if our current
-  <code>window.location</code> indicates the user is attempting to view an
-  article directly. Otherwise, we'll want to fetch a mixture of blog articles
-  from the current time to say, 30 days previous?
+  <code class="lang-js">window.location</code> indicates the user is attempting
+  to view an article directly. Otherwise, we'll want to fetch a mixture of blog
+  articles from the current time to say, 30 days previous?
 </p>
 
 <p>
@@ -258,10 +263,10 @@
 
 <p>
   The first logic check is then to have a look at the
-  <code>window.location.hash</code>.
+  <code class="lang-js">window.location.hash</code>.
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   function extract_filter_from_fragment() {
     return window.location.hash
       .replace(/^#/, "")
@@ -273,11 +278,12 @@
 
 <p>
   The string operations going on here will make more sense later once we discuss
-  how we set the <code>id</code> of each blog article. Essentially, we're
-  stripping out the first 3 sections out of the url fragment (delineated by
-  <code>-</code>'s), which encode the <code>${DAY}</code>,
-  <code>${MONTH}</code>, and <code>${YEAR}</code> and reformatting them into a
-  string of the format <code>"${YEAR}/${MONTH}/${DAY}"</code>. This is
+  how we set the <code class="lang-html">id</code> of each blog article.
+  Essentially, we're stripping out the first 3 sections out of the url fragment
+  (delineated by <code>-</code>'s), which encode the
+  <code class="lang-js">${DAY}</code>, <code class="lang-js">${MONTH}</code>,
+  and <code class="lang-js">${YEAR}</code> and reformatting them into a string
+  of the format <code class="lang-js">"${YEAR}/${MONTH}/${DAY}"</code>. This is
   compatible with the way we're able to "query" data using the GitHub API and it
   fits our directory model.
 </p>
@@ -286,31 +292,33 @@
 
 <p>
   We'll cache this result in
-  <code>const fragment = extract_filter_from_fragment()</code> and then check if
-  that returns empty. If it does not, we know that's what we should set the
-  filter to, otherwise, we'll use a default filter to fetch some timeline of
-  blog articles at our discretion (or present the user with some control that
-  allows narrowing down the time for the filter). It looks like:
+  <code class="lang-js">const fragment = extract_filter_from_fragment()</code>
+  and then check if that returns empty. If it does not, we know that's what we
+  should set the filter to, otherwise, we'll use a default filter to fetch some
+  timeline of blog articles at our discretion (or present the user with some
+  control that allows narrowing down the time for the filter). It looks like:
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
     let filter = fragment === "" ? default_filter : () => fragment
 </code></pre>
 
 <p>
-  Note that the <code>filter</code> is cached to a callback.
-  <code>default_filter</code> is some function at our discretion that will pull
-  in some desired amount/timeline of blog articles.
+  Note that the <code class="lang-js">filter</code> is cached to a callback.
+  <code class="lang-js">default_filter</code> is some function at our discretion
+  that will pull in some desired amount/timeline of blog articles.
 </p>
 
 <p>
-  We can now concern ourselves with passing in our <code>filter</code> callback
-  function to the call that will return an iterable of blog articles.
-  Specifically, I like the idea of using <code>Generators</code> to
-  <code>yield</code> each Article as it is processed from the Cloud Storage, and
-  so under the hood, our <code>for</code> loop that iterates on each retrieved
-  article will be iterating over a <code>Generator</code>. Again, we'll take a
-  look at this function a bit later.
+  We can now concern ourselves with passing in our
+  <code class="lang-js">filter</code> callback function to the call that will
+  return an iterable of blog articles. Specifically, I like the idea of using
+  <code class="lang-js">Generators</code> to
+  <code class="lang-js">yield</code> each Article as it is processed from the
+  Cloud Storage, and so under the hood, our
+  <code class="lang-js">for</code> loop that iterates on each retrieved article
+  will be iterating over a <code class="lang-js">Generator</code>. Again, we'll
+  take a look at this function a bit later.
 </p>
 
 <p>
@@ -319,7 +327,7 @@
   dive into that shortly as well.
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   async function populate_blogs() {
     const fragment = extract_filter_from_fragment()
     let filter = fragment === "" ? default_filter : () => fragment
@@ -341,17 +349,19 @@
   <code>Svelte</code> Component via Javascript. And we must create the Component
   instance using Javascript because <code>Svelte</code> hasn't yet implemented
   the <code>{#await :then}</code> and <code>{#each}</code> pattern for
-  <code>AsyncGenerator</code>s yet. Our
-  <code>fetch_blog_articles</code> function is <code>async</code> because it
-  will be awaiting network <code>fetch</code>es.
+  <code class="lang-js">AsyncGenerator</code>s yet. Our
+  <code class="lang-js">fetch_blog_articles</code> function is
+  <code class="lang-js">async</code> because it will be awaiting network
+  <code class="lang-js">fetch</code>es.
 </p>
 
 <p>
   At the end of our <code>pages/Blog.svelte</code> Component script, we can make
-  a call to this function without needing to <code>await</code> its return:
+  a call to this function without needing to
+  <code class="lang-js">await</code> its return:
 </p>
 
-<pre><code>
+<pre><code class="lang-html">
 &lt;script&gt;
   ...
   populate_blogs()
@@ -384,19 +394,21 @@
   the date format consistent between how its displayed in the blog page and how
   you store it in the original blog repository. e.g. I display my blogs in the
   format
-  <code>"$DD $FULL_MONTH $YEAR</code>. But you could display them as
-  <code>$DD $MM $YY</code> if that suited your intuition better. Either way,
-  we'll expose a <code>date</code> property for passing in the date of the blog
-  article, known at the time of fetching it from the Cloud Storage provider as
-  it will be the path to the actual file.
+  <code class="lang-js">"${DD} ${FULL_MONTH} ${YEAR}"</code>. But you could
+  display them as <code class="lang-js">"${DD} ${MM} ${YY}"</code> if that
+  suited your intuition better. Either way, we'll expose a
+  <code>date</code> property for passing in the date of the blog article, known
+  at the time of fetching it from the Cloud Storage provider as it will be the
+  path to the actual file.
 </p>
 
 <p>
   Since we're not allowed to pass in slots directly when we instantiate Svelte
   Components from Javascript, we'll also have to pass in the
-  <code>html</code> content of the blog as a Component property. We'll then need
-  to expose a <code>content</code> property for passing in the raw
-  <code>html</code> content of the retrieved file.
+  <code class="lang-html">html</code> content of the blog as a Component
+  property. We'll then need to expose a
+  <code class="lang-html">content</code> property for passing in the raw
+  <code class="lang-html">html</code> content of the retrieved file.
 </p>
 
 <p>
@@ -406,7 +418,7 @@
   <a href="#BlogPage"><code>pages/Blog.svelte</code> Component</a>.
 </p>
 
-<pre><code>
+<pre><code class="lang-html">
   // components/BlogArticle.svelte
 
   &lt;script&gt;
@@ -432,7 +444,7 @@
   the layout for it.
 </p>
 
-<pre><code>
+<pre><code class="lang-html">
   &lt;article {id} class={card_class_name} bind:this={article_accessor}&gt;
     &lt;header&gt;
       &lt;h1 class="article-date">{day} {month} {year}&lt;/h1&gt;
@@ -455,24 +467,24 @@
 
 <p>
   There's quite a bit buried in there that hasn't been addressed yet, so let's
-  pick it apart. Starting with the <code>header</code> as that is the
-  information we just finished setting up to be collected.
+  pick it apart. Starting with the <code class="lang-html">header</code> as that
+  is the information we just finished setting up to be collected.
 </p>
 
 <p>
-  The <code>header</code> has two values it displays: the "Blog Article Title"
-  and the "Blog Date".
+  The <code class="lang-html">header</code> has two values it displays: the
+  "Blog Article Title" and the "Blog Date".
 </p>
 
 <h4>Blog Date</h4>
 
 <p>
   The Blog Date is a trivial substituion whose components are
-  <code>const</code>ants set from parsing our input property <code>date</code>.
-  Its very simply:
+  <code class="lang-js">const</code>ants set from parsing our input property
+  <code>date</code>. Its very simply:
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   const year = date[0]
   const month = date[1]
   const day = date[2]
@@ -483,31 +495,32 @@
 <p>
   As mentioned previously, there's a little more parsing going on here to
   generate the Blog Title, but we have all the information we need to parse it.
-  We're simply looking at the <code>blog_file_name</code> input parameter and
-  doing some very trivial string operations on it:
+  We're simply looking at the <code class="lang-js">blog_file_name</code> input
+  parameter and doing some very trivial string operations on it:
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   function parse_blog_file_name() {
     return id.split("-").slice(3).join(" ")
   }
 </code></pre>
 
 <p>
-  You should notice the <code>blog_file_name</code> isn't used directly, but
-  instead the <code>id</code>. This <code>id</code> will be the
-  <code>id</code> attribute of the article and it is calculated from another
-  couple simple string operations:
+  You should notice the <code class="lang-js">blog_file_name</code> isn't used
+  directly, but instead the <code class="lang-html">id</code>. This
+  <code class="lang-html">id</code> will be the
+  <code class="lang-html">id</code> attribute of the article and it is
+  calculated from another couple simple string operations:
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   const id = year + "-" + month + "-" + day + "-" + blog_file_name.replace(".html", "")
 </code></pre>
 
 <p>
-  We'll get more into the <code>id</code> in just a moment, but let's return to
-  look at the rest of the Component to understand how it works with our desired
-  behavior.
+  We'll get more into the <code class="lang-html">id</code> in just a moment,
+  but let's return to look at the rest of the Component to understand how it
+  works with our desired behavior.
 </p>
 
 <h4>Tracking Desire to View Full Blog</h4>
@@ -516,72 +529,80 @@
   Since the <code>BlogArticle</code> Component can be instantiated from either a
   page listing numerous articles or from a desire to view only that single
   article, we have to differentiate those cases. We can do this with the help of
-  the <code>id</code>/fragment of the URL.
+  the <code class="lang-html">id</code>/fragment of the URL.
 </p>
 
 <p>
   If there's a desire to view only a single blog article, the
-  <code>window.location.hash</code> will be set to the <code>id</code> of the
-  article.
+  <code class="lang-js">window.location.hash</code> will be set to the
+  <code class="lang-html">id</code> of the article.
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   const full_article_shown = window.location.hash.replace("#", "") === id
 </code></pre>
 
 <p>
-  We can then use <code>full_article_shown</code> to set up a couple different
-  scenarios.
+  We can then use <code class="lang-js">full_article_shown</code> to set up a
+  couple different scenarios.
 </p>
 
 <p>
-  Recall that the Component <code>html</code> used an <code>{#if}</code> check
-  for the value of <code>full_article_shown</code>. If the full article is
+  Recall that the Component <code class="lang-html">html</code> used an
+  <code>{#if}</code> check for the value of
+  <code class="lang-js">full_article_shown</code>. If the full article is
   desired to be shown, the only portion that is rendered for the content portion
-  of the Component is the <code>content</code> passed in from the instantiation
-  of the <code>BlogArticle</code>, evaluated as <code>html</code>.
+  of the Component is the <code class="lang-js">content</code> passed in from
+  the instantiation of the <code>BlogArticle</code>, evaluated as
+  <code class="lang-html">html</code>.
 </p>
 
 <p>
   Sure, there are security considerations here regarding injecting the
-  <code>content</code> and evaluating its <code>html</code>, but I wager if your
-  blog content has its <code>content</code> compromised, you've got bigger
-  worries on your hands than <code>html</code>-injection. Namely, that your
-  entire GitHub account is compromised, or your Cloud Storage credentials are
-  compromised. Yuck. &#129326;
+  <code class="lang-js">content</code> and evaluating its
+  <code class="lang-html">html</code>, but I wager if your blog content has its
+  <code class="lang-js">content</code> compromised, you've got bigger worries on
+  your hands than <code class="lang-html">html</code>-injection. Namely, that
+  your entire GitHub account is compromised, or your Cloud Storage credentials
+  are compromised. Yuck. &#129326;
 </p>
 
 <p>
   One of the other parameters that depends upon the
-  <code>full_article_shown</code> state is whether to show the
-  <code>article</code> element as a "card". This is simply a styling choice to
-  give each <code>article</code> a look of being raised from the page slightly,
-  which makes the link-clicking behavior more intuitive.
+  <code class="lang-js">full_article_shown</code> state is whether to show the
+  <code class="lang-html">article</code> element as a "card". This is simply a
+  styling choice to give each <code class="lang-html">article</code> a look of
+  being raised from the page slightly, which makes the link-clicking behavior
+  more intuitive.
 </p>
 
-<pre><code>
+<pre><code class="lang-js">
   // Inside script tag of Component
-  const card_class_name = full_article_shown ? "" : "card"
-
   ...
+  const card_class_name = full_article_shown ? "" : "card"
+  ...
+</code></pre>
 
-  // Inside style tag of Component
+<pre><code class="lang-css">
+  /* Inside style tag of Component */
+  ...
   .card {
     border: solid 1px;
     box-shadow: 0 0 4px;
     padding: 2vh;
     margin: 2vh 2vw;
   }
+  ...
 </code></pre>
 
 <p>
-  Other styling applied like the <code>overlay</code> and
-  <code>snippet</code> classes are used for helping to create a "snippet"-style
-  look of the article in the list of articles.
+  Other styling applied like the <code class="lang-css">overlay</code> and
+  <code class="lang-css">snippet</code> classes are used for helping to create a
+  "snippet"-style look of the article in the list of articles.
 </p>
 
-<pre><code>
-  // Component style tag
+<pre><code class="lang-css">
+  /* Component style tag */
   .overlay {
     position: relative;
   }
@@ -609,11 +630,11 @@
 </code></pre>
 
 <p>
-  To ensure consistency in how the <code>a</code> link gets displayed in the
-  snippet, I style it like this:
+  To ensure consistency in how the <code class="lang-html">a</code> link gets
+  displayed in the snippet, I style it like this:
 </p>
 
-<pre><code>
+<pre><code class="lang-css">
   a {
     text-decoration: none;
     color: unset;
@@ -623,41 +644,45 @@
 
 <p>What you get from all this is what you see currently!</p>
 
-<h4><code>id</code></h4>
+<h4><code class="lang-html">id</code></h4>
 
 <p>
-  Let's dive first into how the <code>id</code> is generated so you can get a
-  better understanding of how it fits into the "Blog Title" as well as how we
-  use it to create anchor links for the article and in turn, allow using the
-  <code>id</code> to help filter out only the current blog article when either
-  given a direct link to the article or when reloading the page with that
-  article set in the <code>window.location</code>.
+  Let's dive first into how the <code class="lang-html">id</code> is generated
+  so you can get a better understanding of how it fits into the "Blog Title" as
+  well as how we use it to create anchor links for the article and in turn,
+  allow using the <code class="lang-html">id</code> to help filter out only the
+  current blog article when either given a direct link to the article or when
+  reloading the page with that article set in the
+  <code class="lang-js">window.location</code>.
 </p>
 
-<h5>What's in an <code>id</code>?</h5>
+<h5>What's in an <code class="lang-html">id</code>?</h5>
 
 <p>
-  Baked into the <code>id</code> are some crucial pieces of information. Namely,
-  the date and title of the blog post. These are encoded with a
-  <code>-</code> delineator and with the <code>html</code> file suffix stripped
-  off, which would otherwise have been included when the article file name was
-  returned during the original article listing query. This is done primarily to
-  allow a cleaner, more conventional looking <code>id</code> attribute.
+  Baked into the <code class="lang-html">id</code> are some crucial pieces of
+  information. Namely, the date and title of the blog post. These are encoded
+  with a <code>-</code> delineator and with the
+  <code class="lang-html">html</code> file suffix stripped off, which would
+  otherwise have been included when the article file name was returned during
+  the original article listing query. This is done primarily to allow a cleaner,
+  more conventional looking <code class="lang-html">id</code> attribute.
 </p>
 
 <p>
-  The kind of information encoded into the <code>id</code> allows specific
-  retrieval of that article from the Cloud Storage if a user wants to navigate
-  to a page that directly presents that article. e.g.
+  The kind of information encoded into the
+  <code class="lang-html">id</code> allows specific retrieval of that article
+  from the Cloud Storage if a user wants to navigate to a page that directly
+  presents that article. e.g.
   <a href="https://nathanblair.rocks/blog#2021-August-4-The-Blog"></a> If you
-  recall the <code>extract_filter_from_fragment</code> function mentioned
-  earlier, there were some string operations done on the <code>id</code> in
-  order to generate a filter that could be sent when fetching the blog articles.
-  Indeed, it should be clear that the first 3 parameters of the
-  <code>id</code> are the <code>${DAY}</code>, <code>${MONTH}</code>, and
-  <code>${YEAR}</code> (not necessarily in that order), that could be used to
-  assmble a filter function for querying that specific article from Cloud
-  Storage.
+  recall the <code class="lang-js">extract_filter_from_fragment</code> function
+  mentioned earlier, there were some string operations done on the
+  <code class="lang-html">id</code> in order to generate a filter that could be
+  sent when fetching the blog articles. Indeed, it should be clear that the
+  first 3 parameters of the <code class="lang-html">id</code> are the
+  <code class="lang-js">${DAY}</code>, <code class="lang-js">${MONTH}</code>,
+  and <code class="lang-js">${YEAR}</code> (not necessarily in that order), that
+  could be used to assmble a filter function for querying that specific article
+  from Cloud Storage.
 </p>
 
 <p>
@@ -698,22 +723,22 @@
 
 <p>
   For the blog article dates and titles, it is certainly the case that you could
-  just include that <code>header</code> information in your Blog source
-  <code>html</code> files.
+  just include that <code class="lang-html">header</code> information in your
+  Blog source <code class="lang-html">html</code> files.
 </p>
 
 <p>
   My interest is always in removing as much boilerplate as possible. And the
   information you need to query can be baked into the Blog Article Date. Rather
-  than needing to write that <code>header</code> field for every single article
-  you write, why not make your initial organization better and remove that
-  boilerplate completely?
+  than needing to write that <code class="lang-html">header</code> field for
+  every single article you write, why not make your initial organization better
+  and remove that boilerplate completely?
 </p>
 
 <p>
   And so we get some <em>sort of</em> ugly name mangling for the "Blog Article
   Date" and "Blog Title", but I'd consider it a worthy trade-off over having all
-  the <code>header</code> boilerplate in every article.
+  the <code class="lang-html">header</code> boilerplate in every article.
 </p>
 
 <h1>Reader View Compatibility</h1>
@@ -725,15 +750,16 @@
 
 <h1>SEO Concerns and Considerations</h1>
 
-<h2>What about <code>head</code> tags/keywords for SEO?</h2>
+<h2>What about <code class="lang-html">head</code> tags/keywords for SEO?</h2>
 
 <p>
   I'm unsure about this yet, as there is currently no implementation for
-  including <code>tag</code> or <code>keyword</code> information to the document
-  <code>head</code>. The information would have to be extracted from the blog
-  source, and in an ideal sense, there would be a function to extract keywords
-  dynamically and insert them into the document <code>head</code> when an
-  individual article is clicked.
+  including <code class="lang-html">tag</code> or
+  <code class="lang-html">keyword</code> information to the document
+  <code class="lang-html">head</code>. The information would have to be
+  extracted from the blog source, and in an ideal sense, there would be a
+  function to extract keywords dynamically and insert them into the document
+  <code class="lang-html">head</code> when an individual article is clicked.
 </p>
 
 <h2>
