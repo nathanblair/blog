@@ -5,39 +5,46 @@
 
 <p>
   That's what I was becoming convinced of. I've done some hacking and it turns
-  out, with even just a pretty simple logic flow, it <em>can</em> in fact be
-  done.
+  out, with even just a pretty simple flow, it <em>can</em> in fact be done.
 </p>
-
-<em>This page needs synced up with the current Blog implementation</em>
-
-<em>
-  This will probably be left half-finished until I wrap up the Blog Article
-  Placeholder implementation
-</em>
 
 <h1>The Why</h1>
 
 <p>
   I think we can all agree separation of concern is a good thing; and that its
   much easier to only need to concern yourself with publishing an
-  <code class="lang-html">html</code> file rather than an entire website. In
-  addition, blog content should be both source-controlled and source-controlled
-  separately from the actual website that hosts it.
+  <code class="lang-html">html</code> file rather than an entire website.
 </p>
 
 <p>
-  And the way this source-control directory structure is set up, we can
-  certainly have multiple branches open while working on multiple blog posts.
-  And merging them will hardly ever create a merge conflict!
+  In addition, blog content should be source-controlled and done so separately
+  from the actual website that hosts it. This permits easy and quick
+  modification to article content without needing to redeploy an otherwise
+  static website for fixing something like a tiny spelling error (like the one I
+  just had to fix when I almost published <em>modificaiton</em>...).
+</p>
+
+<p>
+  The way we will set this source-control directory structure up, we can have
+  multiple branches open while working on multiple blog posts. Merging them will
+  hardly ever create a merge conflict!
 </p>
 
 <h2>Blog Article Behaviors</h2>
 
 <p>
-  In my eyes, I think it is most intuitive when visiting a Blog page to view a
-  list of blogs, with their date, title, and a snippet of them visible as part
-  of a list spanning some section of time.
+  In my eyes, I think it is reasonable and intuitive when visiting a Blog to be
+  greeted with some placeholder/skeleton article snippets while the actual
+  articles load from their cloud storage. This makes any period of needing to
+  wait a <em>little</em> more UX-friendly
+</p>
+
+<p>
+  Once they load, I can view the list of blogs, with their populated date,
+  title, and a snippet of them spanning some section of time. Some control(s)
+  would be available to assist in narrowing down the stretch of time from which
+  to populate articles from. Perhaps even a generic search field in case Google
+  wasn't doing quite a good enough job...
 </p>
 
 <p>
@@ -48,13 +55,8 @@
 </p>
 
 <p>
-  This point is addressed by leaning on an article
-  <code class="lang-html">id</code> and URL fragments that will be discussed
-  more later. We will set a link in the article snippet that is show that opens
-  the full article in a new tab when clicked. This new tab allows reloading the
-  page to view the same article, sharing the direct article link using the same
-  URL, or we can close the article page without having to worry about losing our
-  position in the blog list.
+  It would also be a worthy accessibility goal to enable the articles to work
+  with browser Reader views.
 </p>
 
 <h1>The Workflow</h1>
@@ -69,25 +71,28 @@
   </li>
 
   <li>
-    Source control blog repository in a cloud repository. GitHub works very well
-    for this as their API to list directories and grab files from repositories
-    is very simple to consume. But I've hacked around to make it work using
-    something like Google Firestore as well, and I'm sure S3 buckets could
-    potentially work too.
+    Initalize remote source control repository if not done already. GitHub works
+    very well for this as their API to list directories and grab files from
+    repositories is very simple to consume. But I've hacked around to make it
+    work using something like Google Firestore as well, and I'm sure S3 buckets
+    could potentially work too.
   </li>
 
   <li>
-    Add blog diff, commit, and push your local to your Cloud Host (easier if the
-    repository cloud host is also the one serving the files, otherwise you'll
-    have to do some more steps to copy the blog articles to your Cloud Storage
-    buckets).
+    Initialize the local source control repository. Add the remote repository
+    created in the latter step to this local repository.
   </li>
 
   <li>
-    Publish website that can make API calls to download blog source (<code
-      class="lang-html"
-      >html</code
-    >) files
+    Add the diff created when writing the blog, commit it, and push your local
+    changes to your remote repository. If your Cloud Storage host is different
+    from your remote repository, you will need additional steps to copy the
+    article from source to its Cloud Storage destination.
+  </li>
+
+  <li>
+    Publish website that can make API calls to list and download blog source
+    (<code class="lang-html">html</code>) files.
   </li>
 </ul>
 
@@ -116,12 +121,14 @@
 <p>
   For GitHub, its a simple matter of creating a repository that's solely meant
   for source-controlling your blog post source files (the
-  <code class="lang-html">html</code> files).
+  <code class="lang-html">html</code> files). e.g. these very blog articles
+  reside in a <code>blog</code> repository in
+  <a href="https://github.com/nathanblair">my personal GitHub account.</a>
 </p>
 
 <p>
   This method is most effective (and the assumption throughout the rest of the
-  guide) when there is also a directory structure expected. Its very simple:
+  guide) when with this directory structure. Its very simple:
 </p>
 
 <ul>
@@ -158,18 +165,24 @@
 </p>
 
 <p>
-  Make sure you are set to commit and sync to your remote's default branch (I
-  simply <code>git config --global init.defaultBranch "default"</code>).
+  Make sure you are set to commit and sync to your remote's default branch. I
+  have my configuration set to
+  <code>git config --global init.defaultBranch "default"</code>) and use the
+  name <code>github</code> for all my remotes that are in GitHub. When I push
+  and set my upstream tracking branch I run
+  <code>git push -u github default</code>.
 </p>
 
+<!-- Turn this into an ordered list? -->
 <p>
-  Simply write the <code>Blog-Post.html</code> file at the desired date folder
-  structure location,
-  <code>git add ${Year}/${Month}/${Day}/Blog-Post.html</code>,
-  <code>git commit -m "${YOUR_COMMIT_MESSAGE}"</code>, and then
-  <code>git push</code> (<code>-u ${REMOTE_NAME} ${DEFAULT_BRANCH}</code> if
-  you're not already set up to sync to that branch by default).
+  Write the <code>Blog-Post.html</code> file at the desired date folder
+  structure location, then:
 </p>
+
+<pre><code>  git add ${Year}/${Month}/${Day}/Blog-Post.html
+  git commit -m "${YOUR_COMMIT_MESSAGE}"
+  git push # u ${REMOTE_NAME} ${DEFAULT_BRANCH} (if you're not already set up to sync to that branch by default).
+</code></pre>
 
 <p>
   This takes care of everything that needs to be done to the blog article
@@ -182,8 +195,8 @@
 
 <p>
   The details of this will be very dependent upon how your site is designed and
-  what kind of frameworks you use. I can't account for everything in a single
-  article so I'll divulge my process while using
+  what kind of frameworks you use. I can't account for all UI Frameworks in a
+  single article so I'll divulge my process while using
   <code><a href="https://svelte.dev/">svelte</a></code> and you can feel free to
   modify the process to fit your needs accordingly.
 </p>
@@ -191,12 +204,12 @@
 <h4>Svelte Pages and Routing</h4>
 
 <p>
-  I don't use any extra special <code>svelte</code> frameworks to manage
-  single-page routing. I have a <code>blog/index.html</code> path inside my
-  hosted root folder, and that <code>index.html</code> file points to the same
+  I don't use any extra-special <code>svelte</code> frameworks to manage
+  routing. I have a <code>blog/index.html</code> path inside my hosted root
+  folder, and that <code>index.html</code> file points to the same
   <code>main.js</code> and other assets that my <code>/index.html</code> file
-  do. In the end, it ends up just serving my <code>Blog.svelte</code> component.
-  To see it in action, check out my
+  does. In the end, it ends up just serving my
+  <code>Blog.svelte</code> component. To see it in action, check out my
   <code
     ><a
       href="https://github.com/nathanblair/nathanblair.github.io/blob/default/src/App.svelte"
@@ -225,19 +238,17 @@
 
 <p>
   Most of the functionality for network requests is actually handled in a
-  <code>Javascript</code> module located in <code>src/blog.js</code>, but let's
-  first dive into what must be done from a high-level before digging into the
+  Javascript module located in <code>src/blog.js</code>, but let's first dig
+  into what must be done from a high-level before digging into the
   implementation details.
 </p>
 
 <p>
-  One of the first things we need is a DOM element for targeting where to insert
-  each Blog Article. For the time being (until I get reverse-chronological
-  sorting implemented) I simply target the
-  <code class="lang-js">document.getElementById(main_id)</code>. This just
-  appends each Blog Article that is fetched as siblings to one another in my
-  DOM's <code class="lang-html">main</code> element. It may be appropriate to
-  target your blog articles to your <code class="lang-js">document.body</code>.
+  The first thing we need is a DOM element for targeting where to insert each
+  Blog Article from the <code>pages/Blog.svelte</code> Component. For my DOM,
+  they are set up to target the <code class="lang-html">main</code> element. It
+  may be appropriate to target your blog articles to your
+  <code class="lang-js">document.body</code>.
 </p>
 
 <p>
@@ -246,24 +257,242 @@
 </p>
 
 <p>
-  For example, since we're not navigating to the blog
-  <code>index.html</code> pages directly, we need to know if our current
+  For example, we need to know if our current
   <code class="lang-js">window.location</code> indicates the user is attempting
-  to view an article directly. Otherwise, we'll want to fetch a mixture of blog
-  articles from the current time to say, 30 days previous?
+  to view a single article directly on page load. Otherwise, we'll want to fetch
+  a mixture of blog articles using some default time range filter.
 </p>
 
 <p>
-  That filter, in turn, is what we'll be using in our API calls. Note that we've
-  set up the blog directory structure for pretty easy querying. If you're using
-  something like Firestore or another Cloud Storage you could take advantage of
-  different query indices to optimize the API calls you're making and better
-  tailor your filtering function.
+  This filter, in turn, is what we'll be using in our API calls that fetch the
+  actual article source files. Note that we've set up the blog directory
+  structure for relatively easy querying. If you're using something like
+  Firestore or another Cloud Storage you could take advantage of different query
+  indices to optimize the API calls you're making and better tailor your
+  filtering function.
 </p>
 
 <p>
-  The first logic check is then to have a look at the
+  The first logic check when rendering the
+  <code>pages/Blog.svelte</code> Component loads is then to have a look at the
   <code class="lang-js">window.location.hash</code>.
+</p>
+
+<pre><code class="lang-html">  {#if window.location.hash === ""}
+  ...
+  {/if}
+</code></pre>
+
+<p>
+  Next, we're going to render a predefined array of Blog Placeholder/Skeleton
+  elements to the page while the network requests occur to fetch the actual
+  articles.
+</p>
+
+<h5>Blog Placeholders</h5>
+
+<h6>Logic</h6>
+
+<p>
+  It makes the most sense to me to paginate articles per month. No month has
+  more than 31 days, so will be inserting 31 placeholder/skeleton elements that
+  should tide the user over while the articles are fetched in the background.
+</p>
+
+<p>
+  These placeholders also double as anchors for the
+  <code>BlogArticle</code> Components themselves as we will see in a moment.
+</p>
+
+<p>
+  We want to make sure each placeholder is only inserted when we're attempting
+  to get a list of articles and not viewing a single article's content. Thus, we
+  will insert this <code>svelte</code> <code class="lang-js">each</code> block
+  insert the previously discussed
+  <code class="lang-js">window.location.hash</code> guard:
+</p>
+
+<pre><code class="lang-html">  {#if window.location.hash === ""}
+    {#each month_days as each_day}
+      &lt;BlogPlaceholder id={get_skeleton_id(each_day)} /&gt;
+    {/each}
+  {/if}
+</code></pre>
+
+<p>Where <code class="lang-js">month_days</code> comes from this declartion:</p>
+
+<pre><code class="lang-js">  /**
+   * For reverse-chronological sorting order
+   *
+   * @type {number[]}
+   * */
+  const month_days = Array.from(
+    { length: total_days },
+    (_, i) => total_days - i
+  )
+</code></pre>
+
+<p>And obviously <code class="lang-js">const total_days = 31</code>.</p>
+
+<p>
+  The <code class="lang-js">get_skeleton_id</code> is a very simple function
+  that maps a number parameter to something that could be used as an
+  <code class="lang-html">id</code>. It looks like:
+</p>
+
+<pre><code class="lang-js">  /** @param {number} index */
+  function get_skeleton_id(index) {
+    return "day-" + index
+  }
+</code></pre>
+
+<h6>Component</h6>
+
+<p>
+  Since the Component will just be a placeholder/skeleton for the articles
+  themselves, its helpful to lay it out in a manner identical to how the
+  articles will look. Then we'll just fill in the text placeholder divs with
+  some padding and color.
+</p>
+
+<pre><code class="lang-html">  &lt;div {id} class="{card_class_name} {blog_placeholder_class_name} article-skeleton"&gt;
+    &lt;header&gt;
+      &lt;div
+        class="h1-skeleton {skeleton_background_color_class_name} {skeleton_border_class_name}"
+      /&gt;
+      &lt;div
+        class="h2-skeleton {skeleton_background_color_class_name} {skeleton_border_class_name}"
+      /&gt;
+    &lt;/header&gt;
+    &lt;p
+      class="{skeleton_background_color_class_name} {skeleton_border_class_name}"
+    /&gt;
+    &lt;p
+      class="{skeleton_background_color_class_name} {skeleton_border_class_name}"
+    /&gt;
+  &lt;/div&gt;
+</code></pre>
+
+<p>
+  Where <code class="lang-js">skeleton_background_color_class_name</code> and
+  <code class="lang-js">skeleton_border_class_name</code> are simply set to:
+</p>
+
+<pre><code class="lang-js">  const skeleton_background_color_class_name = "skeleton-background-color"
+  const skeleton_border_class_name = "skeleton-border"
+</code></pre>
+
+<p>
+  and are just convenience aliases for consistent reference across multiple
+  elements.
+</p>
+
+<p>
+  The styling is largely up to personal taste but to get you started, mine look
+  like:
+</p>
+
+<pre><code class="lang-css">  .skeleton-background-color {
+    background: lightgray;
+  }
+
+  .skeleton-border {
+    border-radius: 8px;
+  }
+
+  .article-skeleton {
+    height: 35vh;
+    padding: 1vh 4vw;
+    overflow: hidden;
+  }
+
+  .h1-skeleton {
+    width: 40%;
+  }
+
+  .h2-skeleton {
+    width: 60%;
+  }
+
+  .h1-skeleton,
+  .h2-skeleton {
+    padding: 1vh 0;
+    margin: 8px 0;
+    height: 40px;
+  }
+
+  p {
+    height: 40px;
+    margin-top: 5%;
+  }
+</code></pre>
+
+<p>
+  That will get us some decent-looking placeholders/skeletons upon the Blog page
+  loading. But how do we replace them with the actual articles?
+</p>
+
+<h5>Blog Articles</h5>
+
+<p>
+  The blog page will initially render with those placeholders/skeletons, but
+  looking at those isn't why someone is visiting the Blog page. So let's
+  actually <code class="lang-js">populate_blogs</code>.
+</p>
+
+<p>
+  <code class="lang-js">populate_blogs</code> will serve as an async function
+  that we can just leave called at the end of our
+  <code>pages/Blog.svelte</code> Component script:
+</p>
+
+<pre><code class="lang-js">  ...
+  populate_blogs()
+  ...
+</code></pre>
+
+<p>And the actual function looks like:</p>
+
+<pre><code class="lang-js">  async function populate_blogs() {
+    const fragment = extract_filter_from_fragment()
+    let filter = fragment === "" ? default_filter : () => fragment
+
+    for await (const each_article of fetch_blog_articles(filter)) {
+      const skeleton_id = get_skeleton_id(parseInt(each_article.date[2]))
+      const anchor = document.getElementById(skeleton_id)
+
+      new BlogArticle({
+        target: document.getElementById(main_id) || document.body,
+        // @ts-ignore
+        anchor: anchor,
+        props: {
+          blog_file_name: each_article.file_name,
+          date: each_article.date,
+          content: each_article.content,
+        },
+      })
+
+      anchor?.remove()
+    }
+
+    const placeholders = document.querySelectorAll(
+      "." + blog_placeholder_class_name
+    )
+
+    placeholders.forEach(async (each_placeholder, _) => {
+      each_placeholder.classList.add(transition_opacity_class_name)
+      await new Promise((resolve) => setTimeout(resolve, ux_wait_time))
+      each_placeholder.remove()
+    })
+  }
+</code></pre>
+
+<p>There's quite a lot to dissect there so let's break it down.</p>
+
+<p>
+  First, the <code class="lang-js">extract_filter_from_fragment</code> function
+  will check the fragment/hash of the URL to determine if the filter needs to
+  pull a specific article or a list.
 </p>
 
 <pre><code class="lang-js">  function extract_filter_from_fragment() {
@@ -294,8 +523,16 @@
   <code class="lang-js">const fragment = extract_filter_from_fragment()</code>
   and then check if that returns empty. If it does not, we know that's what we
   should set the filter to, otherwise, we'll use a default filter to fetch some
-  timeline of blog articles at our discretion (or present the user with some
-  control that allows narrowing down the time for the filter). It looks like:
+  timeline of blog articles. Again, that default filter will bring in all
+  articles for the current month, and we'll cover that implementation
+  momentarily. Eventually we would also like to present the user with some
+  controls to change with month the articles are pulled in from as well as a
+  generic search function.
+</p>
+
+<p>
+  So far though, what we have covers the
+  <code class="lang-js">filter</code> case that we can utilize for now:
 </p>
 
 <pre><code class="lang-js">  let filter = fragment === "" ? default_filter : () => fragment</code></pre>
@@ -308,61 +545,100 @@
 
 <p>
   We can now concern ourselves with passing in our
-  <code class="lang-js">filter</code> callback function to the call that will
-  return an iterable of blog articles. Specifically, I like the idea of using
-  <code class="lang-js">Generators</code> to
+  <code class="lang-js">filter</code> callback function to
+  <code class="lang-js">fetch_blog_articles</code> which will return an async
+  iterable of blog articles. Specifically, I like the idea of using
+  <code class="lang-js">AsyncGenerators</code> to
   <code class="lang-js">yield</code> each Article as it is processed from the
   Cloud Storage, and so under the hood, our
   <code class="lang-js">for</code> loop that iterates on each retrieved article
-  will be iterating over a <code class="lang-js">Generator</code>. Again, we'll
-  take a look at this function a bit later.
+  will be iterating over an <code class="lang-js">AsyncGenerator</code>. Again,
+  we'll take a look at this function more later.
 </p>
 
 <p>
-  For now, here's what our full function will look like to grab and populate
-  articles on our Blog page. Note the <code>BlogArticle</code> component, we'll
-  dive into that shortly as well.
-</p>
-
-<pre><code class="lang-js">  async function populate_blogs() {
-    const fragment = extract_filter_from_fragment()
-    let filter = fragment === "" ? default_filter : () => fragment
-    for await (const each_article of fetch_blog_articles(filter)) {
-      new BlogArticle({
-        target: root_element,
-        props: {
-          blog_file_name: each_article.file_name,
-          date: each_article.date,
-          content: each_article.content,
-        },
-      })
-    }
-  }
-</code></pre>
-
-<p>
-  As of now there is no way to initialize a slot when creating a
-  <code>Svelte</code> Component via Javascript. And we must create the Component
-  instance using Javascript because <code>Svelte</code> hasn't yet implemented
-  the <code>{#await :then}</code> and <code>{#each}</code> pattern for
-  <code class="lang-js">AsyncGenerator</code>s yet. Our
-  <code class="lang-js">fetch_blog_articles</code> function is
-  <code class="lang-js">async</code> because it will be awaiting network
-  <code class="lang-js">fetch</code>es.
+  Suffice it to say each <code class="lang-js">yield</code>ed article contains
+  enough information for us to create a
+  <code class="lang-js">new BlogArticle</code>. Most of that returned
+  <code class="lang-js">each_article</code>'s properties will be copied to the
+  <code class="lang-js">BlogArticle</code> Component's properties.
 </p>
 
 <p>
-  At the end of our <code>pages/Blog.svelte</code> Component script, we can make
-  a call to this function without needing to
-  <code class="lang-js">await</code> its return:
+  For instantiating the rest of the <code class="lang-js">BlogArticle</code>,
+  <code>svelte</code> requires a target where that Component will be appended.
+  For this target, we again can use whatever in the DOM makes the most sense.
+  For my page and setup, I append my articles to the
+  <code class="lang-html">main</code> element.
 </p>
 
-<pre><code class="lang-html">  &lt;script&gt;
-    ...
-    populate_blogs()
-    ...
-  &lt;/script&gt;
-</code></pre>
+<p>
+  But appending to the body does not handle reverse-chronological sorting. And
+  this is why we've created the <code class="lang-js">month_days</code> array
+  the way we have and inserted the <code>BlogArticles</code> in the method we
+  did.
+</p>
+
+<p>
+  <code>svelte</code>, in addition to having a Component instance
+  <code class="lang-js">target</code>, can also have a Component instance
+  <code class="lang-js">anchor</code>.
+</p>
+
+<p>
+  Our <code>BlogArticles</code> are going to serve as the anchor elements to
+  pass to this instance <code class="lang-js">anchor</code> parameter. In order
+  to get a reference to those elements though, we need their
+  <code class="lang-html">id</code>. Again, this is where the
+  <code class="lang-js">get_skeleton_id</code> function is useful.
+</p>
+
+<p>
+  We can cache the <code class="lang-js">skeleton_id</code> of the corresponding
+  <code>BlogPlaceholder</code> Component by using
+  <code class="lang-js">each_article</code>'s
+  <code class="lang-js">date[2]</code>, which translates to the article's day,
+  into the call to <code class="lang-js">get_skeleton_id</code>. Then we simply
+  use that cached <code class="lang-html">id</code> to grab the element from the
+  DOM using the function <code class="lang-js">document.getElementById</code>.
+</p>
+
+<p>
+  This gives us a handle to the <code class="lang-js">anchor</code> element we
+  need to fully instantiate a <code class="lang-js">BlogArticle</code>.
+</p>
+
+<p>
+  After we have created and added the <code>BlogArticle</code> Component to the
+  DOM, we just need to <code class="lang-js">anchor?.remove()</code>, which
+  removes the <code class="lang-js">anchor</code> element the
+  <code>BlogArticle</code>used to properly sort itself.
+</p>
+
+<p>
+  That wraps up actually adding the <code>BlogArticle</code> Components and
+  their contents to the page. We just need to finish cleaning up all the
+  leftover placeholders.
+</p>
+
+<p>
+  For this operation, I find the best user experience to be using an
+  asynchronous <code class="lang-js">forEach</code> call upon all the existing
+  <code>BlogArticle</code> DOM elements. I find it also makes for a more
+  consistent user experience to also add in a brief UX-friendly
+  <code>sleep</code> period between each element's removal, as it helps to
+  emphasize to the user that work was being done and is now finished.
+</p>
+
+<p>
+  Right before the element is removed (before the <code>sleep</code> operation
+  occurs), I add a class that performs a nice little "fade" to each
+  <code>BlogPlaceholder</code> that assists in this UX. The wait time needn't be
+  any longer than 250ms. And since this is an
+  <code class="lang-js">async forEach</code> loop, the wait time won't be the
+  serial combination of 30+ <code>sleep for 250ms</code> calls, but rather,
+  something close to a total time of 250ms for the entire operation.
+</p>
 
 <h4><code>components/BlogArticle.svelte</code></h4>
 
@@ -374,7 +650,8 @@
 
 <p>
   Taking a look at the most basic properties of a <code>BlogArticle</code>, we
-  obviously have a "Blog Article Title" as well as a "Blog Article Date".
+  obviously have a "Blog Article Title" as well as a "Blog Article Date", and
+  obviously the "Content" itself.
 </p>
 
 <p>
@@ -437,22 +714,21 @@
   the layout for it.
 </p>
 
-<pre><code class="lang-html">  &lt;article {id} class={card_class_name} bind:this={article_accessor}&gt;
+<pre><code class="lang-html">  &lt;article {id} class="{card_class} {snippet_class_name} {article_class_list}" &gt;
     &lt;header&gt;
       &lt;h1 class="article-date">{day} {month} {year}&lt;/h1&gt;
       &lt;h2 class="article-title">{parse_blog_file_name()}&lt;/h2&gt;
     &lt;/header&gt;
-    {#if full_article_shown}
-      {@html content}
+    {@html content}
+    {#if !full_article_shown}
+      &lt;a href={"#" + id} target="_blank" class="overlay">Read More&lt;/a&gt;
     {:else}
-      &lt;a
-        href={"#" + id}
-        target="_blank"
-        class="overlay snippet"
-        bind:this={article_anchor_accessor}
-      &gt;
-        {@html content}
-      &lt;/a&gt;
+      &lt;script
+        defer
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"&gt;&lt;/script&gt;
+      &lt;script
+        defer
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.js"&gt;&lt;/script&gt;
     {/if}
   &lt;/article&gt;
 </code></pre>
@@ -507,17 +783,21 @@
 
 <p>
   We'll get more into the <code class="lang-html">id</code> in just a moment,
-  but let's return to look at the rest of the Component to understand how it
-  works with our desired behavior.
+  but returning to the <code class="lang-js">parse_blog_file_name</code> we can
+  see the rest of the function is just a string operation. Namely, it strips off
+  the <code>date</code> data from the <code class="lang-html">id</code> and then
+  joins the remaining array together with spaces between, creating a proper
+  "Blog Title".
 </p>
 
-<h4>Tracking Desire to View Full Blog</h4>
+<h4>Tracking Desire to View A Single Article</h4>
 
 <p>
-  Since the <code>BlogArticle</code> Component can be instantiated from either a
-  page listing numerous articles or from a desire to view only that single
-  article, we have to differentiate those cases. We can do this with the help of
-  the <code class="lang-html">id</code>/fragment of the URL.
+  Since the <code>BlogArticle</code> Component is instantiated from the
+  <code>pages/Blog.svelte</code> Component, it is the responsibility of the
+  <code>pages.Blog.svelte</code> to properly render either the list or the
+  single article. We can do this with the help of the
+  <code class="lang-html">id</code>/fragment of the URL.
 </p>
 
 <p>
