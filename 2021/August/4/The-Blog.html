@@ -793,20 +793,10 @@
 <h4>Tracking Desire to View A Single Article</h4>
 
 <p>
-  Since the <code>BlogArticle</code> Component is instantiated from the
-  <code>pages/Blog.svelte</code> Component, it is the responsibility of the
-  <code>pages.Blog.svelte</code> to properly render either the list or the
-  single article. We can do this with the help of the
-  <code class="lang-html">id</code>/fragment of the URL.
-</p>
-
-<p>
   If there's a desire to view only a single blog article, the
   <code class="lang-js">window.location.hash</code> will be set to the
   <code class="lang-html">id</code> of the article.
 </p>
-
-<pre><code class="lang-js">  const full_article_shown = window.location.hash.replace("#", "") === id</code></pre>
 
 <p>
   We can then use <code class="lang-js">full_article_shown</code> to set up a
@@ -814,27 +804,7 @@
 </p>
 
 <p>
-  Recall that the Component <code class="lang-html">html</code> used an
-  <code>{#if}</code> check for the value of
-  <code class="lang-js">full_article_shown</code>. If the full article is
-  desired to be shown, the only portion that is rendered for the content portion
-  of the Component is the <code class="lang-js">content</code> passed in from
-  the instantiation of the <code>BlogArticle</code>, evaluated as
-  <code class="lang-html">html</code>.
-</p>
-
-<p>
-  Sure, there are security considerations here regarding injecting the
-  <code class="lang-js">content</code> and evaluating its
-  <code class="lang-html">html</code>, but I wager if your blog content has its
-  <code class="lang-js">content</code> compromised, you've got bigger worries on
-  your hands than <code class="lang-html">html</code>-injection. Namely, that
-  your entire GitHub account is compromised, or your Cloud Storage credentials
-  are compromised. Yuck. &#129326;
-</p>
-
-<p>
-  One of the other parameters that depends upon the
+  One of the parameters that depends upon the
   <code class="lang-js">full_article_shown</code> state is whether to show the
   <code class="lang-html">article</code> element as a "card". This is simply a
   styling choice to give each <code class="lang-html">article</code> a look of
@@ -842,20 +812,37 @@
   more intuitive.
 </p>
 
+<p>
+  The other parameter is whether or not to stylize the article listing as a
+  "snippet". This would mean there is a
+  <code class="lang-css">max-height</code> set on the
+  <code class="lang-html">article</code> element.
+</p>
+
+<p>
+  If the full article is not displayed, at the lower portion of the "snippet", I
+  create an "overlay"
+  <code class="lang-html">a</code> element which fades the content behind it and
+  when clicked, opens the article in a new tab on the user agent. This helps to
+  allow the user to not lose their place in the blog list while also allowing
+  quick context switching to the article itself. I find I always end up opening
+  articles in their own tab anyway, so why not mitigate that middle step?
+</p>
+
+<p>
+  If the full article <em>is</em> displayed, I've embedded some Javascript
+  libraries hosted from a CDN that will parse &lt;code\&gt; elements for me and
+  provide syntax-highlight on the <code>code</code> snippets, with
+  language-appropriate highlighting considered.
+</p>
+
+<p>Altogether, they look like:</p>
+
 <pre><code class="lang-js">  // Inside script tag of Component
   ...
-  const card_class_name = full_article_shown ? "" : "card"
-  ...
-</code></pre>
-
-<pre><code class="lang-css">  /* Inside style tag of Component */
-  ...
-  .card {
-    border: solid 1px;
-    box-shadow: 0 0 4px;
-    padding: 2vh;
-    margin: 2vh 2vw;
-  }
+  const full_article_shown = window.location.hash.replace("#", "") === id
+  const card_class = full_article_shown ? "" : "card"
+  const snippet_class_name = full_article_shown ? "" : "snippet"
   ...
 </code></pre>
 
@@ -866,30 +853,38 @@
 </p>
 
 <pre><code class="lang-css">  /* Component style tag */
-  .overlay {
-    position: relative;
+  .card {
+    border: solid 1px;
+    box-shadow: 0 0 4px;
+    padding: 2vh;
+    margin: 2vh 2vw;
   }
 
-  .overlay::after {
-    content: "";
+  .overlay {
     position: absolute;
-    z-index: 1;
     bottom: 0;
     left: 0;
-    pointer-events: none;
+    z-index: 1;
+    font-size: 1.1em;
     background-image: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 1) 90%
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.8) 5%,
+      rgba(255, 255, 255, 1) 100%
     );
     width: 100%;
-    height: 100%;
+    height: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 0 0 2vh 0;
   }
 
   .snippet {
-    max-height: 20vh;
+    max-height: 35vh;
     overflow: hidden;
   }
+
 </code></pre>
 
 <p>
@@ -943,19 +938,20 @@
   first 3 parameters of the <code class="lang-html">id</code> are the
   <code class="lang-js">${DAY}</code>, <code class="lang-js">${MONTH}</code>,
   and <code class="lang-js">${YEAR}</code> (not necessarily in that order), that
-  could be used to assmble a filter function for querying that specific article
+  could be used to assemble a filter function for querying that specific article
   from Cloud Storage.
 </p>
 
 <p>
-  In addition to being able to fetch the correct article itself, it also allows
-  a direct shareable link to a specific article, which would otherwise be
-  impossible when implementing a SPA-aproach. Is at as efficient with respect to
-  having a folder for each blog embedded into your website source? I would
-  actually argue its <em>more</em> efficient, especially when considering the
-  constraints of using only static page hosting services. If the static hosting
-  constraint was taken away, there's absolutely other ways to accomplish
-  separating blog source from website source, as that's effectively how
+  In addition to being able to fetch the correct article itself, the
+  <code class="lang-html">id</code> and associated anchor/fragment also allows a
+  shareable link to a specific article, which would otherwise be impossible when
+  implementing a SPA-aproach. Is at as efficient with respect to having a folder
+  for each blog embedded into your website source? I would actually argue its
+  <em>more</em> efficient, especially when considering the constraints of using
+  only static page hosting services. If the static hosting constraint was taken
+  away, there's absolutely other ways to accomplish separating blog source from
+  website source, as that's effectively how
   <a href="https://medium.com">medium</a> and other related sites work.
 </p>
 
@@ -969,16 +965,180 @@
 
 <h4>The Blog Network Fetches and <code>src/blog.js</code></h4>
 
-<p><em>TODO</em></p>
+<p>
+  The first note to go over is the simple implementation of the default filter,
+  discussed previously. The default filter is just a filter passed to the API
+  that grabs all articles for the current month. Here's how it works:
+</p>
 
-<h3>Writing and Committing</h3>
+<pre><code class="lang-js">  export function default_filter() {
+    const date = new Date()
+    const month = DateMap[date.getMonth()]
+
+    return `${date.getFullYear()}/${month}`
+  }
+</code></pre>
 
 <p>
-  To make sure the Blog page is able to fetch your blog, you'll have to make
-  sure you commit your article to the Blog source repository and sync those
-  changes to the remote repository on the default branch. If you're using
-  another Cloud Stroage provider you'll also want to be sure to upload the blog
-  source file there as well.
+  Where <code class="lang-js">DateMap</code> is just an
+  <code class="lang-js">Object.freeze</code> that serves as a map for inputting
+  a given month number and spitting out the month name. e.g. Given
+  <code class="lang-js">DateMap[7]</code>, it will return
+  <code class="lang-js">"August"</code>
+</p>
+
+<p>
+  The next point to tackle is
+  <code class="lang-js">fetch_blog_articles</code> itself. Recall that this is
+  the AsyncGenerator function used in <code>pages/Blog.svelte</code> to iterate
+  over to <code class="lang-js">yield</code> each article retrieved from the
+  network.
+</p>
+
+<p>Lets lay it all out before we step through what its doing and why:</p>
+
+<pre><code class="lang-js">  export async function* fetch_blog_articles(filter) {
+    /** @type {Response} */
+    let response
+
+    try {
+      response = await fetch(`${cloud_host_blog_list_endpoint}${filter()}`)
+    } catch (err) {
+      console.error(err)
+      return
+    }
+
+    /** @type {Payload} */
+    let body
+    try {
+      body = await response.json()
+    } catch (err) {
+      console.error(err)
+      return
+    }
+
+    if (!Array.isArray(body)) {
+      return
+    }
+
+    for (const each_entry of body) {
+      switch (each_entry.type) {
+        case "dir":
+          yield* fetch_blog_articles(() => each_entry.path)
+          continue
+        case "file":
+          const date_array = each_entry.path.split("/")
+          date_array.pop()
+          try {
+            yield {
+              file_name: each_entry.name,
+              // @ts-ignore
+              date: date_array,
+              content: await (await fetch(each_entry.download_url)).text(),
+            }
+          } catch (err) {
+            console.error(err)
+            continue
+          }
+          break
+      }
+    }
+    return
+  }
+</code></pre>
+
+<p>
+  First, we'll note that it attempts to make the initial network request against
+  our Cloud Storage API to list all the articles pertaining to our
+  <code class="lang-js">filter</code>.
+</p>
+
+<p>
+  Pending success of that, it simply parses out the JSON from the network
+  request's returned <code class="lang-js">body</code>.
+</p>
+
+<p>
+  The rest of this is very Cloud Storage-dependent, but let's walk through how
+  it works with GitHub API.
+</p>
+
+<p>
+  Our returned JSON consists of an array of objects. We can iterate over this
+  array, though first it is best to guard against the returned body from the API
+  being something unexpected with a
+</p>
+
+<pre><code class="lang-js">  if (!Array.isArray(body)) {
+    return
+  }
+</code></pre>
+
+<p>
+  Next we simply iterate over <code class="lang-js">each_entry of body</code>.
+</p>
+
+<p>
+  For GitHub API, <code class="lang-js">each_entry</code> has a property
+  <code class="lang-js">type</code> that enumerates whether this entry is a
+  <code>dir</code>, a <code>file</code>, a <code>symlink</code>, etc.
+</p>
+
+<p>
+  If its a directory, we want to recursively call into
+  <code class="lang-js">fetch_blog_articles</code> with
+  <code class="lang-js">each_entry</code>'s
+  <code class="lang-js">path</code> property, which denotes the path to the
+  resource relative to the repository root.
+</p>
+
+<p>
+  To properly yield a recursive <code class="lang-js">AsyncGenerator</code>,
+  prefix the function call with <code class="lang-js">yield*</code>. Following
+  the return of that function, call, we need to process the next entry in the
+  array, so we <code class="lang-js">continue</code>.
+</p>
+
+<p>
+  If <code class="lang-js">each_entry</code> is instead a <code>file</code>,
+  we'll need to grab some information about this file and begin populating the
+  necessary parts of our return <code>article</code>.
+</p>
+
+<p>
+  First, we parse out the date information from
+  <code class="lang-js">each_entry.path</code>, splitting the path/date segments
+  for easier direct access (recall the references to
+  <code class="lang-js">date[2]</code> and so forth).
+</p>
+
+<p>
+  We are now set to begin <code class="lang-js">yield</code>ing the appropriate
+  return <code>article</code>. The file name of the article will be the full
+  <code class="lang-js">each_entry.name</code>, which GitHub's API documents as
+  being the name entry of the file. It will go on to be parsed into the "Blog
+  Title", as discussed previously.
+</p>
+
+<p>
+  The <code>article</code>'s <code>date</code> property is then set to our
+  aforementioned <code class="lang-js">date_array</code>, generated by splitting
+  <code class="lang-js">each_entry.path</code>
+</p>
+
+<p>
+  Finally, the <code>content</code> of the returned article needs to have the
+  actual <code class="lang-html">html</code> source embedded in it. To retrieve
+  this, we require one more network request to
+  <code class="lang-js">each_entry.download_url</code>, which GitHub API
+  documents as being the endpoint from which to download the raw data of that
+  file.
+</p>
+
+<p>
+  That is now everything necessary to set up a static website that pulls your
+  blog articles from a separate cloud storage to prevent the necessity of
+  redeploying your static website for every new blog article!
 </p>
 
 <h1>What's with all the name mangling?</h1>
@@ -1007,7 +1167,7 @@
 
 <p>
   Individual article reading has been tested as being compatible with the
-  Firefox Browser.
+  Firefox Browser and Microsoft Edge Browser.
 </p>
 
 <h1>SEO Concerns and Considerations</h1>
@@ -1023,10 +1183,6 @@
   function to extract keywords dynamically and insert them into the document
   <code class="lang-html">head</code> when an individual article is clicked.
 </p>
-
-<h2>
-  <em><b>FINISH ME</b></em>
-</h2>
 
 <p>
   I need to put in some work to verify, but I don't see any reason why fragments
