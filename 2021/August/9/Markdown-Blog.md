@@ -8,7 +8,7 @@ Returned to the blog site.
 
 And rendered from HTML to the user.
 
-  ```
+  ```javascript
   async function heres_some_code() {
     doing_the_thing()
     const is_it_awesome = true
