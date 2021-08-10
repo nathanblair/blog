@@ -18,3 +18,5 @@ async function heres_some_code() {
 > Can we use GitHub markdown with quote blocks?
 
 Sure!
+
+_What about [links](https://github.com/nathanblair)?_
