@@ -1,4 +1,4 @@
-# A Blog
+# <a name="2021-August-9#a-blog"></a> A Blog
 
 but written in source using markdown.
 
@@ -23,7 +23,7 @@ _What about [links](https://github.com/nathanblair)?_
 
 # The Interesting Part
 
-If you haven't already, see [The Blog](../4/The-Blog.html) post about what has been done to dynamically pull blog articles outside of the website source control.
+If you haven't already, see [The Blog](../4/The-Blog) post about what has been done to dynamically pull blog articles outside of the website source control.
 
 The modifications required to implement writing blog articles in Markdown and then pulling down rendered versions of them is very minimal.
 
