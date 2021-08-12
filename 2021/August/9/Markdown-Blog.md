@@ -1,4 +1,4 @@
-# <a name="2021-August-9-a-blog"></a> A Blog
+# A Blog
 
 but written in source using markdown.
 
