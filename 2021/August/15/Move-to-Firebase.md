@@ -6,22 +6,22 @@ The determining factor has been the limitation of routing Single-Page-Apps and n
 
 Here's the rub:
 
-- I independently came up with a solution that has actually already been employed by React and Angular - Fragment Routing. i.e. Routing Single Page Applications using hints of resources to load via fragments in the URL. Cool that it worked and the solution remained consistent across two vastly different projects, but ultimately there just needed to be a better way.
-- Why does there need to be a better way? Pretty simply: Fragment-based routing makes it very difficult if not impossible (according to the specs) to route user traffic to individual fragments/anchors within points of a blog article.
+- I independently came up with a solution that has actually already been employed by React and Angular - Fragment Routing. i.e. Routing Single Page Applications using hints of resources to load via fragments in the URL. Cool that it worked and the solution remained consistent across two vastly different projects but ultimately there just needed to be a better way.
+- Why does there need to be a better way? Pretty simply: Fragment-based routing makes it very difficult if not impossible (according to the specs) to route user traffic to fragments/anchors within a blog article.
 
-This nullifies the point of having anchor links in my blog articles because I lot of what I write is [cross-referenced](../9/Markdown-Blog#the-interesting-part) and done-so down to a very specific topic.
+Fragment-base routing nullifies having anchor links in my blog articles because a lot of what I write is [cross-referenced](../9/Markdown-Blog#the-interesting-part).
 
-Definitely not the user-experience I'm going for. And it appears to be impossible to adapt Google Pages to work with other routing techniques. So migration of the hosting provider was the only option left.
+Since it appears to be impossible to adapt GitHub Pages to work with other routing techniques migration of the hosting provider was the only option left.
 
 # Firebase Hosting
 
-Luckily I'm very familiar with the Firebase line of products, and hosting in particular, and knew it would serve well as an alternative.
+Luckily I'm familiar with the Firebase line of products, and hosting in particular, and knew it would serve well as an alternative.
 
 Firebase Hosting allows `rewrites` of path requests. This enables a very nice Single-Page approach while also not needing to jump through whacky hoops.
 
 ## `rewrite`
 
-Firebase allows configuration of its services through a file called `firebase.json`. In this configuration we can set up the `hosting` service to rewrite requests to paths at the blog domain to the blog page's root `index.html`:
+Firebase allows configuration of its services through a file called `firebase.json`. In this configuration we can set up the `hosting` service to rewrite `blog/**` requests to the blog page's root `index.html`:
 
 ```json
 {
@@ -46,7 +46,7 @@ Firebase allows configuration of its services through a file called `firebase.js
 
 The first rewrite allows directing traffic to the main App.svelte routing that delivers most of the primary site components like `About.svelte` and `Resume.svelte`.
 
-But the second routing ensures that if someone visits a path like `2021-August-15-Move-to-Firebase`, the `Blog.svelte` Component specifically will be the one to handle that request.
+But the second routing ensures that if someone visits a path like `blog/2021-August-15-Move-to-Firebase`, the `Blog.svelte` Component will be the one to handle that request.
 
 This required a minimal amount of change from where the Blog was [left off](../9/Markdown-Blog).
 
