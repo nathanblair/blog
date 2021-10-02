@@ -2,7 +2,7 @@
 
 I've determined that the only way to get the full performance I want is to migrate the hosting provider from GitHub Pages to Google Cloud.
 
-The determining factor has been the limitation of routing Single-Page-App like Svelte Components and not wanting to release full website updates every time I write a new Blog article.
+The determining factor has been the limitation of routing Single-Page-Apps and not wanting to release full website updates every time I write a new Blog article.
 
 Here's the rub:
 
